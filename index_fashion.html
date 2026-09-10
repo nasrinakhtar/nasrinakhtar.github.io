@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="en" data-theme="light">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nasrin Akhtar | Data Scientist &amp; Risk Decision Modeller</title>
+<meta name="description" content="Data scientist working on credit risk decisioning for US Branded Cards at Citi. Scorecards, real-time underwriting models, and RAG systems."/>
+<meta name="theme-color" content="#F9F8F6"/>
+
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          alabaster:  'rgb(var(--c-alabaster) / <alpha-value>)',
+          paper:      'rgb(var(--c-paper) / <alpha-value>)',
+          charcoal:   'rgb(var(--c-charcoal) / <alpha-value>)',
+          citiNavy:   'rgb(var(--c-navy) / <alpha-value>)',
+          citiBlue:   'rgb(var(--c-blue) / <alpha-value>)',
+          cobaltElectric: 'rgb(var(--c-cobalt) / <alpha-value>)',
+          subtleGray: 'rgb(var(--c-subtle) / <alpha-value>)',
+          borderGray: 'rgb(var(--c-border) / <alpha-value>)',
+          card:       'rgb(var(--c-card) / <alpha-value>)'
+        },
+        fontFamily: {
+          serif: ['Playfair Display', 'Bodoni Moda', 'Georgia', 'serif'],
+          sans:  ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+          mono:  ['JetBrains Mono', 'Space Mono', 'monospace']
+        },
+        letterSpacing: { tighter: '-0.05em', ultraWide: '0.22em' }
+      }
+    }
+  }
+</script>
+
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;0,6..96,900&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Playfair+Display:ital,wght@0,400;0,600;0,800;0,900;1,400&amp;family=Plus+Jakarta+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+
+<script>
+  /* apply the saved theme before first paint so there is no flash */
+  (function () {
+    try {
+      var t = localStorage.getItem('theme');
+      if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+
+<style data-purpose="theme-tokens">
+  /* One palette, two themes. Tailwind reads these channels, so flipping
+     the block below re-skins every utility at once. */
+  :root, :root[data-theme="light"]{
+    --c-alabaster: 249 248 246;
+    --c-paper:     243 240 234;
+    --c-card:      255 255 255;
+    --c-charcoal:   17  17  17;
+    --c-navy:        0  43 102;
+    --c-blue:        0  70 190;
+    --c-cobalt:     37  99 235;
+    --c-subtle:    142 142 147;
+    --c-border:    229 226 218;
+    --shadow-col:  17 17 17;
+  }
+  :root[data-theme="dark"]{
+    --c-alabaster:  10  14  23;   /* page */
+    --c-paper:      15  21  33;   /* alternating band */
+    --c-card:       20  27  42;   /* cards */
+    --c-charcoal:  237 242 250;   /* ink flips to near-white */
+    --c-navy:      147 190 255;
+    --c-blue:      110 168 254;
+    --c-cobalt:    129 178 255;
+    --c-subtle:    138 152 176;
+    --c-border:     34  46  68;
+    --shadow-col:   0 0 0;
+    color-scheme: dark;
+  }
+
+  html, body{
+    transition: background-color .45s cubic-bezier(.22,1,.36,1), color .45s cubic-bezier(.22,1,.36,1);
+  }
+
+  /* --- dark-mode fixes for the raw Tailwind utilities the layout uses --- */
+  [data-theme="dark"] .bg-white,
+  [data-theme="dark"] .bg-white\/90{ background-color: rgb(var(--c-card)) !important; }
+  [data-theme="dark"] .bg-white\/20{ background-color: rgba(255,255,255,.12) !important; }
+  [data-theme="dark"] .bg-neutral-50,
+  [data-theme="dark"] .bg-neutral-100,
+  [data-theme="dark"] .bg-neutral-200{ background-color: rgb(var(--c-paper)) !important; }
+  /* Tailwind's hover: variants aren't matched by the plain-class selectors above
+     (the class token is literally "hover:bg-neutral-50", not "bg-neutral-50"),
+     so a hovered element would otherwise fall back to Tailwind's light-mode hue. */
+  [data-theme="dark"] .hover\:bg-neutral-50:hover{ background-color: rgb(var(--c-paper)) !important; }
+  [data-theme="dark"] .hover\:bg-blue-50\/40:hover{ background-color: rgba(110,168,254,.12) !important; }
+  [data-theme="dark"] .bg-neutral-900,
+  [data-theme="dark"] .bg-neutral-800\/80{ background-color: #0b1220 !important; }
+  [data-theme="dark"] .border-neutral-800,
+  [data-theme="dark"] .border-neutral-900{ border-color: rgb(var(--c-border)) !important; }
+  [data-theme="dark"] .bg-blue-50,
+  [data-theme="dark"] .bg-blue-50\/40,
+  [data-theme="dark"] .bg-blue-100\/40{ background-color: rgba(110,168,254,.12) !important; }
+  [data-theme="dark"] .border-blue-200,
+  [data-theme="dark"] .border-blue-200\/50,
+  [data-theme="dark"] .border-blue-200\/70,
+  [data-theme="dark"] .border-blue-200\/80{ border-color: rgba(110,168,254,.28) !important; }
+  [data-theme="dark"] .bg-emerald-50,
+  [data-theme="dark"] .bg-emerald-50\/70{ background-color: rgba(52,211,153,.12) !important; }
+  [data-theme="dark"] .border-emerald-200{ border-color: rgba(52,211,153,.30) !important; }
+  [data-theme="dark"] .text-emerald-900,[data-theme="dark"] .text-emerald-800,
+  [data-theme="dark"] .text-emerald-700{ color:#6ee7b7 !important; }
+  [data-theme="dark"] .bg-amber-50\/70{ background-color: rgba(251,191,36,.12) !important; }
+  [data-theme="dark"] .border-amber-200{ border-color: rgba(251,191,36,.30) !important; }
+  [data-theme="dark"] .text-amber-900,[data-theme="dark"] .text-amber-800,
+  [data-theme="dark"] .text-amber-700{ color:#fcd34d !important; }
+  [data-theme="dark"] .bg-amber-200\/80{ background-color: rgba(251,191,36,.22) !important; }
+  [data-theme="dark"] .bg-emerald-200\/80{ background-color: rgba(52,211,153,.22) !important; }
+  [data-theme="dark"] .bg-slate-50,
+  [data-theme="dark"] .bg-slate-100{ background-color: rgba(148,163,184,.14) !important; }
+  [data-theme="dark"] .border-slate-200{ border-color: rgba(148,163,184,.30) !important; }
+  [data-theme="dark"] .text-slate-900,[data-theme="dark"] .text-slate-800,
+  [data-theme="dark"] .text-slate-700,[data-theme="dark"] .text-slate-600{ color:#cbd5e1 !important; }
+  [data-theme="dark"] .bg-violet-50{ background-color: rgba(167,139,250,.14) !important; }
+  [data-theme="dark"] .border-violet-200{ border-color: rgba(167,139,250,.30) !important; }
+  [data-theme="dark"] .text-violet-900,[data-theme="dark"] .text-violet-800,
+  [data-theme="dark"] .text-violet-700,[data-theme="dark"] .text-violet-600{ color:#c4b5fd !important; }
+  [data-theme="dark"] .text-neutral-300,[data-theme="dark"] .text-neutral-400,
+  [data-theme="dark"] .text-neutral-500{ color: rgb(var(--c-subtle)) !important; }
+  [data-theme="dark"] .shadow-2xl,[data-theme="dark"] .shadow-xl,
+  [data-theme="dark"] .shadow-lg{ box-shadow: 0 18px 50px rgba(0,0,0,.55) !important; }
+  [data-theme="dark"] img.grayscale{ filter: grayscale(1) brightness(.85); }
+</style>
+
+<style data-purpose="typography">
+  .hero-bg-text{
+    font-family:'Bodoni Moda','Playfair Display',Georgia,serif;
+    font-weight:900; letter-spacing:-0.04em; line-height:.85; text-transform:uppercase;
+  }
+  .editorial-label{
+    font-family:'JetBrains Mono',monospace; font-size:.75rem;
+    letter-spacing:.08em; text-transform:uppercase;
+  }
+  .vertical-writing{ writing-mode:vertical-rl; text-orientation:mixed; }
+</style>
+
+<style data-purpose="motion">
+  /* --- scroll reveal: everything arrives, nothing pops --- */
+  [data-reveal]{
+    opacity:0; transform:translateY(26px);
+    transition:opacity .8s cubic-bezier(.22,1,.36,1), transform .8s cubic-bezier(.22,1,.36,1);
+    will-change:opacity, transform;
+  }
+  [data-reveal].in{ opacity:1; transform:none; }
+  [data-reveal].from-left{ transform:translateX(-30px) }
+  [data-reveal].from-right{ transform:translateX(30px) }
+  [data-reveal].zoom{ transform:scale(.94) }
+
+  /* --- marquee --- */
+  @keyframes marquee{ 0%{ transform:translateX(0) } 100%{ transform:translateX(-50%) } }
+  .animate-marquee{ animation:marquee 32s linear infinite; }
+  .marquee-host:hover .animate-marquee{ animation-play-state:paused; }
+
+  /* --- ambient float on the hero portrait --- */
+  @keyframes floaty{ 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(-12px) } }
+  .floaty{ animation:floaty 7s ease-in-out infinite; }
+
+  /* --- the scoring pipeline: applications travelling to a decision --- */
+  @keyframes flowPulse{
+    0%{ transform:translateX(0) scale(.6); opacity:0 }
+    12%{ opacity:1 }
+    88%{ opacity:1 }
+    100%{ transform:translateX(var(--flow-x,120px)) scale(.6); opacity:0 }
+  }
+  .flow-dot{ animation:flowPulse 2.6s cubic-bezier(.45,0,.55,1) infinite; }
+
+  @keyframes barGrow{ from{ width:0 } }
+  .bar-grow.in > i{ animation:barGrow 1.2s cubic-bezier(.22,1,.36,1) both; }
+
+  .skill-ring{ transition:stroke-dashoffset 1.1s cubic-bezier(.22,1,.36,1); }
+
+  /* off the clock: the caption badge overshoots slightly then settles —
+     a proper "pop", not just a fade */
+  .pop-badge{ transition:transform .45s cubic-bezier(.34,1.56,.64,1), opacity .3s ease; }
+  @media (prefers-reduced-motion: reduce){
+    .pop-badge{ transition:opacity .3s ease !important; }
+  }
+
+  /* --- contact section: original 2D-canvas gradient descent — disabled
+     alongside its HTML block above, kept here for a quick toggle back --
+  #gdCanvas{ background:transparent; touch-action:none; user-select:none; }
+  #gdCanvas.is-dragging{ cursor:grabbing; }
+  .gd-stage-dot{ color:rgb(var(--c-subtle)); transition:color .25s ease, font-weight .25s ease; transform:translateY(-50%); }
+  .gd-leg-dot{
+    width:6px; height:6px; border-radius:9999px; flex-shrink:0;
+    background:rgb(var(--c-border)); transition:background-color .25s ease, box-shadow .25s ease;
+  }
+  .gd-stage-dot.is-active{ color:rgb(var(--c-blue)); font-weight:600; }
+  .gd-stage-dot.is-active .gd-leg-dot{ background:rgb(var(--c-blue)); box-shadow:0 0 0 3px rgb(var(--c-blue) / .18); }
+  */
+
+  @keyframes ringSpin{ to{ transform:rotate(360deg) } }
+  .ring-spin{ animation:ringSpin 9s linear infinite; }
+
+  /* --- soft ambient glow that drifts --- */
+  @keyframes drift{ 0%,100%{ transform:translate3d(0,0,0) scale(1) } 50%{ transform:translate3d(0,-26px,0) scale(1.07) } }
+  .drift{ animation:drift 16s ease-in-out infinite; }
+
+  a, button, .transition-all{ transition-timing-function:cubic-bezier(.22,1,.36,1); }
+
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{ animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important }
+    [data-reveal]{ opacity:1 !important; transform:none !important }
+  }
+</style>
+
+<style data-purpose="gradient-descent-v2">
+  /* scoped entirely under #gd2-section — nothing here touches body,
+     button, input[type=range] etc. globally.
+
+     Mobile: a normal, modest in-flow block (part of the page's natural
+     height, sitting above the form) — kept contained so a touch-drag
+     to rotate it doesn't fight the page's own scroll everywhere else.
+
+     Desktop (md+): position:absolute against the #contact section
+     (which is the nearest positioned ancestor once we go absolute —
+     #gd2-section has no position:relative of its own at this
+     breakpoint, so nothing boxes it in) and it bleeds across the
+     *entire* section, right-biased. The form sits in a z-10 stack
+     above it, so it reads as one continuous background, not a card. */
+  #gd2-section{ position:relative; width:100%; height:420px; overflow:hidden; }
+  #gd2-canvas-container{ position:absolute; inset:0; }
+  #gd2-canvas-container canvas{ touch-action:none; display:block; }
+
+  .gd2-overlay{ display:none; }
+
+  @media (min-width:768px){
+    #gd2-section{ position:absolute; inset:0; height:auto; overflow:visible; }
+    #gd2-canvas-container{ left:26%; }
+    .gd2-overlay{
+      display:block; position:absolute; top:32px; right:32px; z-index:5;
+      width:200px; text-align:left;
+    }
+  }
+
+  .gd2-header{ pointer-events:none; margin-bottom:18px; }
+  .gd2-eyebrow{ font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:rgb(var(--c-navy)); margin-bottom:6px; }
+  .gd2-subtitle{ font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.15em; text-transform:uppercase; color:rgb(var(--c-subtle)); }
+
+  .gd2-info-card{
+    pointer-events:none; margin-bottom:20px;
+    font-family:'JetBrains Mono',monospace; font-size:11px;
+  }
+  .gd2-info-title{ margin-bottom:8px; font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:rgb(var(--c-subtle)); }
+  .gd2-info-row{ display:flex; justify-content:space-between; margin:5px 0; color:rgb(var(--c-subtle)); }
+  .gd2-info-row strong{ color:rgb(var(--c-charcoal)); font-weight:600; }
+
+  .gd2-controls{
+    display:flex; flex-direction:column; gap:9px; pointer-events:auto;
+    font-family:'JetBrains Mono',monospace; font-size:11px; color:rgb(var(--c-subtle));
+  }
+  .gd2-controls-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .gd2-controls label{ letter-spacing:.08em; text-transform:uppercase; }
+  #gd2-learning-rate{ width:90px; accent-color:rgb(var(--c-blue)); }
+  #gd2-restart{
+    border:1px solid rgb(var(--c-charcoal)); background:transparent; color:rgb(var(--c-charcoal));
+    border-radius:9999px; padding:6px 14px; cursor:pointer; font-family:'JetBrains Mono',monospace; font-size:11px;
+    transition:background-color .2s ease, color .2s ease;
+  }
+  #gd2-restart:hover{ background:rgb(var(--c-charcoal)); color:rgb(var(--c-alabaster)); }
+
+  /* algorithm picker — plain text, an underline for the active one, no card/pill fill */
+  .gd2-opt{
+    background:none; border:none; border-bottom:1px solid transparent; padding:1px 0; cursor:pointer;
+    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.05em; text-transform:uppercase;
+    color:rgb(var(--c-subtle)); transition:color .2s ease, border-color .2s ease;
+  }
+  .gd2-opt:hover{ color:rgb(var(--c-charcoal)); }
+  .gd2-opt.is-active{ color:rgb(var(--c-blue)); font-weight:600; border-bottom-color:rgb(var(--c-blue)); }
+
+  .gd2-instruction{
+    pointer-events:none; margin-top:20px; max-width:200px;
+    font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.08em; line-height:1.6;
+    text-transform:uppercase; color:rgb(var(--c-subtle) / .7);
+  }
+</style>
+
+<style data-purpose="principles">
+  /* --- "five things I hold to" spotlight selector --- */
+  .principle-tab{ cursor:pointer; border:1px solid transparent; }
+  .principle-tab-bar{
+    position:absolute; left:0; top:8px; bottom:8px; width:3px; border-radius:9999px;
+    background:transparent; transition:background-color .25s ease;
+  }
+  .principle-tab.is-active{ background-color:rgb(var(--c-card)); border-color:rgb(var(--c-border)); box-shadow:0 4px 16px rgba(var(--shadow-col),.06); }
+  /* active/hover text always takes the accent hue — never the plain charcoal
+     token, which flips to near-white in dark mode and can wash out against a
+     light Tailwind hover fill (see the hover:bg-neutral-50 fix above). */
+  .principle-tab.is-active .tab-num,
+  .principle-tab.is-active .tab-title,
+  .principle-tab.is-active .tab-arrow{ color:rgb(var(--c-blue)); }
+  .principle-tab.is-active .tab-arrow{ opacity:1; transform:translateX(2px); }
+  .principle-tab[data-accent="emerald"].is-active .principle-tab-bar{ background:#10b981; }
+  .principle-tab[data-accent="emerald"].is-active .tab-num,
+  .principle-tab[data-accent="emerald"].is-active .tab-title,
+  .principle-tab[data-accent="emerald"].is-active .tab-arrow{ color:#10b981; }
+  .principle-tab[data-accent="amber"].is-active .principle-tab-bar{ background:#d97706; }
+  .principle-tab[data-accent="amber"].is-active .tab-num,
+  .principle-tab[data-accent="amber"].is-active .tab-title,
+  .principle-tab[data-accent="amber"].is-active .tab-arrow{ color:#d97706; }
+  .principle-tab[data-accent="slate"].is-active .principle-tab-bar{ background:#64748b; }
+  .principle-tab[data-accent="slate"].is-active .tab-num,
+  .principle-tab[data-accent="slate"].is-active .tab-title,
+  .principle-tab[data-accent="slate"].is-active .tab-arrow{ color:#64748b; }
+  .principle-tab[data-accent="violet"].is-active .principle-tab-bar{ background:#8b5cf6; }
+  .principle-tab[data-accent="violet"].is-active .tab-num,
+  .principle-tab[data-accent="violet"].is-active .tab-title,
+  .principle-tab[data-accent="violet"].is-active .tab-arrow{ color:#8b5cf6; }
+  .principle-tab[data-accent="blue"].is-active .principle-tab-bar{ background:rgb(var(--c-blue)); }
+
+  /* muted resting tone for inactive titles — pinned so it never inherits the
+     charcoal token's dark-mode flip to near-white */
+  .principle-tab .tab-title{ color:rgba(100,116,139,.75); }
+  .principle-tab .tab-num{ color:rgba(100,116,139,.35); }
+  [data-theme="dark"] .principle-tab .tab-title{ color:rgba(148,163,184,.72); }
+  [data-theme="dark"] .principle-tab .tab-num{ color:rgba(148,163,184,.28); }
+
+  @keyframes principleIn{ from{ opacity:0; transform:translateY(10px) } to{ opacity:1; transform:none } }
+  .principle-panel{ animation:principleIn .4s cubic-bezier(.22,1,.36,1) both; }
+
+  /* mobile accordion drawer — mirrors the desktop panel's content, inline under its own tab */
+  .principle-accordion{
+    background:rgb(var(--c-card)); border:1px solid rgb(var(--c-border)); border-radius:.75rem;
+    padding:1.1rem 1.25rem 1.35rem; margin:.125rem 0 .5rem;
+    animation:principleIn .35s cubic-bezier(.22,1,.36,1) both;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .principle-panel, .principle-accordion{ animation:none !important; }
+  }
+</style>
+</head>
+
+<body class="bg-alabaster text-charcoal font-sans antialiased overflow-x-hidden selection:bg-citiNavy selection:text-alabaster">
+
+<!-- BEGIN: RightEdgeTicker -->
+<aside aria-label="Social channels" class="hidden lg:flex fixed right-4 top-1/2 -translate-y-1/2 z-40 flex-col items-center space-y-6 text-[10px] tracking-ultraWide font-mono text-charcoal/60 uppercase">
+<div class="w-px h-12 bg-charcoal/20"></div>
+<a class="vertical-writing hover:text-citiBlue hover:font-bold transition-all py-1" href="https://github.com/Nasrin-Akhtar" target="_blank" rel="noopener">github</a>
+<span class="text-[8px] text-citiBlue/40">•</span>
+<a class="vertical-writing hover:text-citiBlue hover:font-bold transition-all py-1" href="https://www.linkedin.com/in/nasrin-akhtar51/" target="_blank" rel="noopener">linkedin</a>
+<span class="text-[8px] text-citiBlue/40">•</span>
+<a class="vertical-writing hover:text-citiBlue hover:font-bold transition-all py-1" href="https://leetcode.com/u/Nasrin_/" target="_blank" rel="noopener">leetcode</a>
+<span class="text-[8px] text-citiBlue/40">•</span>
+<a class="vertical-writing hover:text-citiBlue hover:font-bold transition-all py-1" href="https://public.tableau.com/app/profile/nasrin.akhtar/vizzes" target="_blank" rel="noopener">tableau</a>
+<span class="text-[8px] text-citiBlue/40">•</span>
+<a class="vertical-writing hover:text-citiBlue hover:font-bold transition-all py-1" href="https://topmate.io/nasrin_akhtar" target="_blank" rel="noopener">topmate</a>
+<div class="w-px h-12 bg-charcoal/20"></div>
+</aside>
+<!-- END: RightEdgeTicker -->
+
+<!-- BEGIN: NavigationBar -->
+<header class="sticky top-0 z-50 bg-alabaster/90 backdrop-blur-md border-b border-charcoal/5 transition-all" id="nav">
+<div class="max-w-7xl mx-auto px-6 md:px-12 h-20 flex items-center justify-between">
+<a class="group flex items-center space-x-3 text-left" href="#hero">
+<span class="font-serif font-black text-2xl tracking-tighter text-charcoal group-hover:text-citiBlue transition-colors">NASRIN AKHTAR</span>
+<span class="hidden xl:inline-block font-mono text-[10px] uppercase tracking-widest text-citiNavy bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full">Data Scientist @ Citi</span>
+</a>
+
+<nav class="hidden lg:flex items-center space-x-6 text-xs font-medium uppercase tracking-wider text-charcoal/70" id="navLinks">
+<a class="hover:text-citiBlue transition-colors" href="#about">About</a>
+<a class="hover:text-citiBlue transition-colors" href="#impact">Model Impact</a>
+<a class="hover:text-citiBlue transition-colors" href="#pedigree">Experience</a>
+<a class="hover:text-citiBlue transition-colors" href="#projects">Projects</a>
+<a class="hover:text-citiBlue transition-colors" href="#beyond">Beyond Code</a>
+<a class="hover:text-citiBlue transition-colors" href="#contact">Contact</a>
+</nav>
+
+<div class="flex items-center space-x-3">
+<button id="themeBtn" type="button" aria-label="Switch to dark theme"
+  class="w-10 h-10 rounded-full border border-charcoal/15 flex items-center justify-center text-charcoal/70 hover:text-citiBlue hover:border-citiBlue transition-all hover:rotate-12">
+  <svg class="i-moon w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <svg class="i-sun w-4 h-4 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke-linecap="round"/></svg>
+</button>
+<a class="inline-flex items-center space-x-2 bg-charcoal hover:bg-citiNavy text-alabaster text-xs font-medium px-5 py-2.5 rounded-full hover:shadow-lg transition-all" href="assets/resume.pdf" download>
+<svg aria-hidden="true" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span class="hidden sm:inline">Resume</span><span class="sm:hidden">CV</span>
+</a>
+<button id="burger" type="button" aria-label="Menu" aria-expanded="false" class="lg:hidden w-10 h-10 rounded-full border border-charcoal/15 flex flex-col items-center justify-center gap-1">
+<span class="block w-4 h-px bg-charcoal transition-all"></span><span class="block w-4 h-px bg-charcoal transition-all"></span>
+</button>
+</div>
+</div>
+<div id="mobileMenu" class="lg:hidden hidden border-t border-charcoal/10 bg-alabaster px-6 py-4 space-y-2 text-sm uppercase tracking-wider font-medium">
+<a class="block py-1.5 hover:text-citiBlue" href="#about">About</a>
+<a class="block py-1.5 hover:text-citiBlue" href="#impact">Model Impact</a>
+<a class="block py-1.5 hover:text-citiBlue" href="#pedigree">Experience</a>
+<a class="block py-1.5 hover:text-citiBlue" href="#projects">Projects</a>
+<a class="block py-1.5 hover:text-citiBlue" href="#beyond">Beyond Code</a>
+<a class="block py-1.5 hover:text-citiBlue" href="#contact">Contact</a>
+</div>
+</header>
+<!-- END: NavigationBar -->
+
+<main>
+<!-- BEGIN: HeroSection -->
+<section class="relative pt-6 pb-20 md:pt-10 md:pb-28 overflow-hidden bg-alabaster border-b border-charcoal/10" id="hero">
+<div class="absolute -top-24 -right-24 w-[28rem] h-[28rem] bg-citiBlue/10 rounded-full filter blur-3xl pointer-events-none drift"></div>
+<div class="max-w-7xl mx-auto px-6 md:px-12 relative min-h-[700px] flex flex-col justify-between" id="about">
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start z-20 pt-4">
+<div class="flex items-center space-x-3" data-reveal>
+<div class="flex -space-x-2 overflow-hidden">
+<img alt="Nasrin Akhtar" class="inline-block h-10 w-10 rounded-full ring-2 ring-citiBlue/30 object-cover object-top" src="assets/portfolio.png"/>
+<div class="inline-flex items-center justify-center h-10 w-10 rounded-full ring-2 ring-alabaster bg-citiNavy text-alabaster text-xs font-mono font-semibold shadow-sm">CITI</div>
+</div>
+<div>
+<p class="text-xs font-bold uppercase tracking-wider text-charcoal flex items-center space-x-1.5">
+<span>Risk Decision Model Developer</span>
+<span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+</p>
+<p class="text-[11px] text-charcoal/60 font-mono">Citi US Branded Cards • Ex-Aditya Birla Capital</p>
+</div>
+</div>
+<div class="hidden md:block"></div>
+<div class="text-left md:text-right" data-reveal data-delay="120">
+<span class="inline-block font-mono text-xs uppercase tracking-widest text-citiNavy bg-blue-50 border border-blue-200 px-3 py-1 rounded">[portfolio 2026]</span>
+</div>
+</div>
+
+<div class="relative w-full my-8 md:my-0 flex items-center justify-center min-h-[480px] md:min-h-[580px]">
+<div class="absolute inset-0 flex items-center justify-center select-none pointer-events-none z-0">
+<h1 class="hero-bg-text text-charcoal/[0.07] text-[78px] sm:text-[130px] md:text-[190px] lg:text-[230px] tracking-tighter text-center">DATA SCI</h1>
+</div>
+
+<div class="relative z-10 w-full max-w-sm md:max-w-md mx-auto aspect-[3/4] overflow-hidden rounded-2xl shadow-2xl bg-neutral-900 ring-1 ring-citiBlue/20 floaty zoom" data-reveal>
+<img alt="Nasrin Akhtar, Data Scientist at Citi" class="w-full h-full object-cover object-top contrast-110 hover:scale-105 transition-transform duration-700 ease-out" src="assets/portfolio.png"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none"></div>
+<div class="absolute bottom-4 left-4 right-4 text-white text-xs font-mono flex justify-between items-center opacity-90">
+<span class="flex items-center space-x-1.5 font-medium"><span class="w-2 h-2 rounded-full bg-blue-400"></span><span>NASRIN AKHTAR, M.Sc.</span></span>
+<span class="bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded text-[10px] text-blue-100 border border-white/10">BENGALURU, IN</span>
+</div>
+</div>
+
+<a aria-label="Explore model impact" class="absolute z-30 bottom-4 md:bottom-12 left-1/2 -translate-x-1/2 md:translate-x-12 w-20 h-20 md:w-24 md:h-24 bg-white rounded-full shadow-2xl flex flex-col items-center justify-center text-charcoal border border-blue-200 hover:scale-110 hover:bg-citiNavy hover:text-alabaster hover:border-citiNavy transition-all duration-300 group" href="#impact">
+<span class="text-xl md:text-2xl font-light text-citiBlue group-hover:text-alabaster transform group-hover:rotate-45 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all duration-300">↗</span>
+<span class="text-[9px] uppercase tracking-wider font-mono mt-1">Explore</span>
+</a>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-end z-20 pb-4">
+<div class="max-w-sm space-y-3" data-reveal>
+<p class="text-xs md:text-sm text-charcoal/80 leading-relaxed">
+  Statistics and operational research, pointed at lending portfolios. I build the models that
+  decide who gets a loan or a card — and lately, the RAG systems that make the policy around
+  them easier to check.
+</p>
+<div class="text-citiNavy font-mono text-sm inline-flex items-center space-x-1">
+<span>↓</span><span class="text-[11px] uppercase tracking-wider font-semibold text-citiBlue">Portfolio blueprint</span>
+</div>
+</div>
+<div class="text-left md:text-right space-y-2" data-reveal data-delay="150">
+<div class="text-4xl md:text-5xl font-serif font-black tracking-tight text-charcoal flex items-baseline md:justify-end gap-1">
+<span data-count="86">0</span><span class="text-citiBlue">%</span>
+</div>
+<p class="text-xs uppercase font-mono tracking-widest text-charcoal/60">AUC · EMI bounce model in production</p>
+<p class="text-xs italic font-serif text-charcoal/70">"A model is a decision about someone's life."</p>
+</div>
+</div>
+</div>
+</section>
+<!-- END: HeroSection -->
+
+<!-- BEGIN: MarqueeTickerRibbon -->
+<section aria-label="Core competencies" class="bg-charcoal text-alabaster py-5 overflow-hidden border-y border-charcoal marquee-host">
+<div class="animate-marquee whitespace-nowrap flex items-center text-sm md:text-base font-serif font-bold uppercase tracking-wider w-max">
+<span class="mx-6 flex items-center space-x-4">
+<span>CREDIT RISK MODELLING</span><span class="text-base text-citiBlue">✹</span>
+<span>APPLICATION SCORECARDS</span><span class="text-base text-citiBlue">✹</span>
+<span>REAL-TIME UNDERWRITING</span><span class="text-base text-citiBlue">✹</span>
+<span>XGBOOST &amp; LIGHTGBM</span><span class="text-base text-citiBlue">✹</span>
+<span>RAG &amp; RETRIEVAL</span><span class="text-base text-citiBlue">✹</span>
+<span>OPERATIONAL RESEARCH</span><span class="text-base text-citiBlue">✹</span>
+<span>PYSPARK PIPELINES</span><span class="text-base text-citiBlue">✹</span>
+</span>
+<span aria-hidden="true" class="mx-6 flex items-center space-x-4">
+<span>CREDIT RISK MODELLING</span><span class="text-base text-citiBlue">✹</span>
+<span>APPLICATION SCORECARDS</span><span class="text-base text-citiBlue">✹</span>
+<span>REAL-TIME UNDERWRITING</span><span class="text-base text-citiBlue">✹</span>
+<span>XGBOOST &amp; LIGHTGBM</span><span class="text-base text-citiBlue">✹</span>
+<span>RAG &amp; RETRIEVAL</span><span class="text-base text-citiBlue">✹</span>
+<span>OPERATIONAL RESEARCH</span><span class="text-base text-citiBlue">✹</span>
+<span>PYSPARK PIPELINES</span><span class="text-base text-citiBlue">✹</span>
+</span>
+</div>
+</section>
+<!-- END: MarqueeTickerRibbon -->
+
+<!-- BEGIN: Credit is Access -->
+<section class="py-24 bg-paper border-b border-charcoal/10 relative overflow-hidden" id="impact">
+<div class="absolute top-0 right-0 w-96 h-96 bg-citiBlue/10 rounded-full filter blur-3xl pointer-events-none drift"></div>
+<div class="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
+
+<div class="max-w-4xl mb-16">
+<div class="inline-flex items-center space-x-2 bg-blue-50 border border-blue-200 text-citiNavy text-[11px] font-mono uppercase tracking-widest px-3 py-1 rounded-full mb-4" data-reveal>
+<span class="w-1.5 h-1.5 rounded-full bg-citiBlue"></span><span>Philosophy &amp; model ethics</span>
+</div>
+<h2 class="text-3xl md:text-5xl lg:text-6xl font-serif font-black tracking-tight text-charcoal leading-[1.1]" data-reveal data-delay="80">
+Credit is Access. <br/><span class="text-citiBlue italic font-normal">Models Decide Who Gets It.</span>
+</h2>
+<blockquote class="mt-6 border-l-2 border-citiBlue pl-6 text-base md:text-lg text-charcoal/80 leading-relaxed" data-reveal data-delay="160">
+"Behind every application is someone trying to buy a phone, cover a medical bill, or grow a small business. A better model doesn't just reduce losses — it means fewer people who should be approved get turned away because the old rules never understood them."
+</blockquote>
+</div>
+
+<!-- Scoring pipeline -->
+<div class="mb-20 bg-white rounded-2xl border border-charcoal/10 p-6 md:p-8 shadow-sm" data-reveal>
+<div class="flex flex-col md:flex-row md:items-center justify-between pb-6 border-b border-charcoal/10 gap-4">
+<div>
+<div class="flex items-center space-x-2">
+<span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+<span class="text-xs font-mono uppercase tracking-wider text-charcoal font-bold">Real-time scoring in the underwriting flow</span>
+</div>
+<p class="text-xs text-charcoal/60 mt-1">Bureau vectors, banking behaviour and application features, scored at the point of decision.</p>
+</div>
+<div class="flex items-center space-x-6 text-xs font-mono">
+<div class="text-right"><span class="text-charcoal/50 text-[10px] block uppercase">Turnaround</span><span class="font-bold text-citiBlue">−30%</span></div>
+<div class="text-right"><span class="text-charcoal/50 text-[10px] block uppercase">Recovery lift</span><span class="font-bold text-emerald-600">+40%</span></div>
+</div>
+</div>
+
+<div class="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+<div class="lg:col-span-4 space-y-3">
+<div class="text-[11px] font-mono uppercase tracking-wider text-charcoal/50 flex justify-between items-center mb-2">
+<span>Incoming applications</span><span class="text-citiBlue font-semibold">Stream active</span>
+</div>
+<div class="p-3.5 rounded-xl border border-charcoal/10 bg-neutral-50 hover:bg-blue-50/40 transition-colors from-left" data-reveal>
+<div class="flex justify-between items-center text-xs"><span class="font-semibold text-charcoal">Small business working capital</span><span class="font-mono text-citiBlue font-medium">₹3.2L</span></div>
+<div class="flex justify-between items-center text-[10px] font-mono text-charcoal/50 mt-1.5"><span>Thin file • UPI cashflow</span><span class="text-neutral-400">0.08s ago</span></div>
+</div>
+<div class="p-3.5 rounded-xl border border-charcoal/10 bg-neutral-50 hover:bg-blue-50/40 transition-colors" data-reveal data-delay="90">
+<div class="flex justify-between items-center text-xs"><span class="font-semibold text-charcoal">Medical emergency credit line</span><span class="font-mono text-citiBlue font-medium">₹1.1L</span></div>
+<div class="flex justify-between items-center text-[10px] font-mono text-charcoal/50 mt-1.5"><span>Salary signal • zero delinquency</span><span class="text-neutral-400">0.14s ago</span></div>
+</div>
+<div class="p-3.5 rounded-xl border border-charcoal/10 bg-neutral-50 hover:bg-blue-50/40 transition-colors" data-reveal data-delay="180">
+<div class="flex justify-between items-center text-xs"><span class="font-semibold text-charcoal">Card limit increase</span><span class="font-mono text-citiBlue font-medium">₹80K</span></div>
+<div class="flex justify-between items-center text-[10px] font-mono text-charcoal/50 mt-1.5"><span>Behavioural score • 14mo on book</span><span class="text-neutral-400">0.26s ago</span></div>
+</div>
+</div>
+
+<div class="lg:col-span-4 flex flex-col items-center justify-center p-6 bg-neutral-900 text-white rounded-xl border border-citiBlue/30 relative shadow-inner overflow-hidden zoom" data-reveal>
+<div class="absolute -top-3 bg-citiBlue text-white text-[9px] font-mono uppercase tracking-widest px-3 py-0.5 rounded-full">Scoring engine</div>
+<!-- travelling application dots -->
+<div class="absolute inset-x-0 top-1/2 h-px pointer-events-none" aria-hidden="true">
+  <span class="flow-dot absolute w-1.5 h-1.5 rounded-full bg-blue-400" style="--flow-x:210px; left:-10px; animation-delay:0s"></span>
+  <span class="flow-dot absolute w-1.5 h-1.5 rounded-full bg-emerald-400" style="--flow-x:210px; left:-10px; animation-delay:.9s"></span>
+  <span class="flow-dot absolute w-1.5 h-1.5 rounded-full bg-amber-300" style="--flow-x:210px; left:-10px; animation-delay:1.8s"></span>
+</div>
+<div class="w-12 h-12 rounded-full bg-blue-600/20 border border-blue-400/40 flex items-center justify-center mb-3 relative z-10">
+<svg class="w-6 h-6 text-blue-400 ring-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-dasharray="8 6" stroke-width="2"></circle></svg>
+</div>
+<div class="text-center relative z-10">
+<h4 class="font-serif font-bold text-base tracking-wide">Application &amp; behavioural models</h4>
+<p class="text-[11px] font-mono text-neutral-400 mt-1">Bureau lift • cashflow • EMI resilience</p>
+</div>
+<div class="w-full grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-neutral-800 text-center font-mono text-[10px] relative z-10">
+<div class="bg-neutral-800/80 p-1.5 rounded"><div class="text-blue-300 font-bold">0.86</div><div class="text-neutral-500">AUC · bounce</div></div>
+<div class="bg-neutral-800/80 p-1.5 rounded"><div class="text-blue-300 font-bold">0.75</div><div class="text-neutral-500">AUC · top-up</div></div>
+<div class="bg-neutral-800/80 p-1.5 rounded"><div class="text-blue-300 font-bold">0.72</div><div class="text-neutral-500">AUC · scorecard</div></div>
+</div>
+</div>
+
+<div class="lg:col-span-4 space-y-3">
+<div class="text-[11px] font-mono uppercase tracking-wider text-charcoal/50 mb-2"><span>Decision buckets</span></div>
+<div class="p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/70 flex items-center justify-between from-right" data-reveal>
+<div class="flex items-center space-x-3">
+<div class="w-3 h-3 rounded-full bg-emerald-500 flex-shrink-0"></div>
+<div><div class="text-xs font-bold text-emerald-900">APPROVED</div><div class="text-[10px] font-mono text-emerald-700">Instant, cut-off based</div></div>
+</div>
+<span class="font-mono text-xs font-bold text-emerald-800">−30% TAT</span>
+</div>
+<div class="p-3.5 rounded-xl border border-amber-200 bg-amber-50/70 flex items-center justify-between" data-reveal data-delay="90">
+<div class="flex items-center space-x-3">
+<div class="w-3 h-3 rounded-full bg-amber-500 flex-shrink-0"></div>
+<div><div class="text-xs font-bold text-amber-900">REFERRED</div><div class="text-[10px] font-mono text-amber-700">Human underwriter reviews</div></div>
+</div>
+<span class="font-mono text-xs font-bold text-amber-800">Thin file</span>
+</div>
+<div class="p-3.5 rounded-xl border border-charcoal/10 bg-neutral-50 flex items-center justify-between" data-reveal data-delay="180">
+<div class="flex items-center space-x-3">
+<div class="w-3 h-3 rounded-full bg-subtleGray flex-shrink-0"></div>
+<div><div class="text-xs font-bold text-charcoal">DECLINED</div><div class="text-[10px] font-mono text-charcoal/50">With a reason you can state</div></div>
+</div>
+<span class="font-mono text-xs font-bold text-charcoal/60">Explainable</span>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Five principles -->
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+<div data-reveal>
+<span class="editorial-label text-citiNavy">Core principles</span>
+<h3 class="text-2xl md:text-3xl font-serif font-black text-charcoal mt-1">Five things I hold to</h3>
+</div>
+<div class="text-xs font-mono text-charcoal/50 mt-2 md:mt-0" data-reveal data-delay="90">Hover a principle to read the full story <span class="text-citiBlue">↓</span> <span id="principleCounter" class="text-charcoal font-bold">— / 05</span></div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-3 lg:gap-8 items-stretch" data-reveal>
+
+<!-- Selector list -->
+<div class="lg:col-span-5 flex flex-col gap-1" id="principleTabs" role="tablist" aria-label="Core principles">
+
+<button type="button" class="principle-tab group relative flex items-center gap-4 text-left pl-5 pr-3 py-4 rounded-lg transition-colors hover:bg-neutral-50" data-panel="principle-1" data-accent="blue" role="tab" aria-selected="false" aria-controls="principle-1">
+<span class="principle-tab-bar"></span>
+<span class="tab-num text-2xl md:text-3xl font-serif font-black text-charcoal/20 transition-colors w-9 flex-shrink-0">01</span>
+<span class="min-w-0 flex-1">
+<span class="block text-[10px] font-mono uppercase tracking-wider text-charcoal/40 mb-0.5">Inclusion</span>
+<span class="tab-title block text-sm md:text-base font-serif font-bold text-charcoal/60 transition-colors">Thin-file applicants</span>
+</span>
+<svg class="tab-arrow w-4 h-4 text-charcoal/15 flex-shrink-0 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+</button>
+<div class="principle-accordion lg:hidden" id="accordion-1" hidden></div>
+
+<button type="button" class="principle-tab group relative flex items-center gap-4 text-left pl-5 pr-3 py-4 rounded-lg transition-colors hover:bg-neutral-50" data-panel="principle-2" data-accent="emerald" role="tab" aria-selected="false" aria-controls="principle-2">
+<span class="principle-tab-bar"></span>
+<span class="tab-num text-2xl md:text-3xl font-serif font-black text-charcoal/20 transition-colors w-9 flex-shrink-0">02</span>
+<span class="min-w-0 flex-1">
+<span class="block text-[10px] font-mono uppercase tracking-wider text-charcoal/40 mb-0.5">Speed</span>
+<span class="tab-title block text-sm md:text-base font-serif font-bold text-charcoal/60 transition-colors">Speed is access too</span>
+</span>
+<svg class="tab-arrow w-4 h-4 text-charcoal/15 flex-shrink-0 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+</button>
+<div class="principle-accordion lg:hidden" id="accordion-2" hidden></div>
+
+<button type="button" class="principle-tab group relative flex items-center gap-4 text-left pl-5 pr-3 py-4 rounded-lg transition-colors hover:bg-neutral-50" data-panel="principle-3" data-accent="amber" role="tab" aria-selected="false" aria-controls="principle-3">
+<span class="principle-tab-bar"></span>
+<span class="tab-num text-2xl md:text-3xl font-serif font-black text-charcoal/20 transition-colors w-9 flex-shrink-0">03</span>
+<span class="min-w-0 flex-1">
+<span class="block text-[10px] font-mono uppercase tracking-wider text-charcoal/40 mb-0.5">Proactive</span>
+<span class="tab-title block text-sm md:text-base font-serif font-bold text-charcoal/60 transition-colors">Catching trouble early</span>
+</span>
+<svg class="tab-arrow w-4 h-4 text-charcoal/15 flex-shrink-0 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+</button>
+<div class="principle-accordion lg:hidden" id="accordion-3" hidden></div>
+
+<button type="button" class="principle-tab group relative flex items-center gap-4 text-left pl-5 pr-3 py-4 rounded-lg transition-colors hover:bg-neutral-50" data-panel="principle-4" data-accent="slate" role="tab" aria-selected="false" aria-controls="principle-4">
+<span class="principle-tab-bar"></span>
+<span class="tab-num text-2xl md:text-3xl font-serif font-black text-charcoal/20 transition-colors w-9 flex-shrink-0">04</span>
+<span class="min-w-0 flex-1">
+<span class="block text-[10px] font-mono uppercase tracking-wider text-charcoal/40 mb-0.5">Governance</span>
+<span class="tab-title block text-sm md:text-base font-serif font-bold text-charcoal/60 transition-colors">Explainability isn't optional</span>
+</span>
+<svg class="tab-arrow w-4 h-4 text-charcoal/15 flex-shrink-0 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+</button>
+<div class="principle-accordion lg:hidden" id="accordion-4" hidden></div>
+
+<button type="button" class="principle-tab group relative flex items-center gap-4 text-left pl-5 pr-3 py-4 rounded-lg transition-colors hover:bg-neutral-50" data-panel="principle-5" data-accent="violet" role="tab" aria-selected="false" aria-controls="principle-5">
+<span class="principle-tab-bar"></span>
+<span class="tab-num text-2xl md:text-3xl font-serif font-black text-charcoal/20 transition-colors w-9 flex-shrink-0">05</span>
+<span class="min-w-0 flex-1">
+<span class="block text-[10px] font-mono uppercase tracking-wider text-charcoal/40 mb-0.5">GenAI</span>
+<span class="tab-title block text-sm md:text-base font-serif font-bold text-charcoal/60 transition-colors">Where LLMs actually help</span>
+</span>
+<svg class="tab-arrow w-4 h-4 text-charcoal/15 flex-shrink-0 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+</button>
+<div class="principle-accordion lg:hidden" id="accordion-5" hidden></div>
+
+</div>
+
+<!-- Detail panel — desktop only; mobile gets an inline accordion under each tab instead -->
+<div class="hidden lg:block lg:col-span-7" id="principlePanelWrap">
+<div class="relative bg-white border border-charcoal/10 rounded-2xl p-7 md:p-9 overflow-hidden min-h-[300px] flex flex-col justify-center shadow-sm" id="principlePanelHost">
+
+<div class="principle-panel relative" id="principle-1" role="tabpanel" hidden>
+<svg class="absolute -right-6 -top-8 w-40 h-40 text-citiBlue/[0.06]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"/></svg>
+<div class="relative">
+<div class="flex items-center gap-3 mb-5">
+<span class="w-11 h-11 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center flex-shrink-0"><svg class="w-5 h-5 text-citiBlue" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"/></svg></span>
+<span class="text-[10px] font-mono uppercase tracking-wider text-citiNavy">Inclusion · 01/05</span>
+</div>
+<h4 class="text-xl md:text-2xl font-serif font-black text-charcoal mb-3 leading-snug">Thin-file applicants deserve a fair read</h4>
+<p class="text-sm text-charcoal/70 leading-relaxed max-w-xl">People with little credit history are the easiest to wrongly decline. Better features — banking behaviour, bureau signals — give them a fairer read than a blunt cutoff ever could.</p>
+<div class="flex flex-wrap gap-2.5 mt-6">
+<span class="text-[11px] font-mono px-3 py-1.5 rounded-full bg-neutral-50 border border-charcoal/10 text-charcoal/60">Alternative signals</span>
+<span class="text-[11px] font-mono font-bold px-3 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-citiBlue">→ Fairer access</span>
+</div>
+</div>
+</div>
+
+<div class="principle-panel relative" id="principle-2" role="tabpanel" hidden>
+<svg class="absolute -right-6 -top-8 w-40 h-40 text-emerald-500/[0.06]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
+<div class="relative">
+<div class="flex items-center gap-3 mb-5">
+<span class="w-11 h-11 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center flex-shrink-0"><svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg></span>
+<span class="text-[10px] font-mono uppercase tracking-wider text-emerald-800">Speed · 02/05</span>
+</div>
+<h4 class="text-xl md:text-2xl font-serif font-black text-charcoal mb-3 leading-snug">Speed is access too</h4>
+<p class="text-sm text-charcoal/70 leading-relaxed max-w-xl">Automating real-time scoring inside the underwriting flow cut turnaround by 30%. A decision in seconds instead of days is a materially different experience for someone who needs the money now.</p>
+<div class="flex flex-wrap gap-2.5 mt-6">
+<span class="text-[11px] font-mono px-3 py-1.5 rounded-full bg-neutral-50 border border-charcoal/10 text-charcoal/60">Instant decisioning</span>
+<span class="text-[11px] font-mono font-bold px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700">−30% turnaround</span>
+</div>
+</div>
+</div>
+
+<div class="principle-panel relative" id="principle-3" role="tabpanel" hidden>
+<svg class="absolute -right-6 -top-8 w-40 h-40 text-amber-500/[0.06]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/></svg>
+<div class="relative">
+<div class="flex items-center gap-3 mb-5">
+<span class="w-11 h-11 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center flex-shrink-0"><svg class="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/></svg></span>
+<span class="text-[10px] font-mono uppercase tracking-wider text-amber-800">Proactive · 03/05</span>
+</div>
+<h4 class="text-xl md:text-2xl font-serif font-black text-charcoal mb-3 leading-snug">Catching trouble early</h4>
+<p class="text-sm text-charcoal/70 leading-relaxed max-w-xl">The EMI bounce model finds who is about to miss a payment, so they get a call before it becomes a default — 40% of at-risk customers recovered.</p>
+<div class="flex flex-wrap gap-2.5 mt-6">
+<span class="text-[11px] font-mono px-3 py-1.5 rounded-full bg-neutral-50 border border-charcoal/10 text-charcoal/60">86% AUC · 77% capture</span>
+<span class="text-[11px] font-mono font-bold px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700">+40% recovery</span>
+</div>
+</div>
+</div>
+
+<div class="principle-panel relative" id="principle-4" role="tabpanel" hidden>
+<svg class="absolute -right-6 -top-8 w-40 h-40 text-slate-500/[0.06]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 4.556-3.04 8.339-7.2 9.542A11.955 11.955 0 0 1 12 21.75c-.67 0-1.325-.055-1.965-.16A11.955 11.955 0 0 1 3 12V6.912a1.5 1.5 0 0 1 .933-1.387l6.75-2.7a1.5 1.5 0 0 1 1.113 0l6.75 2.7A1.5 1.5 0 0 1 21 6.912V12Z"/></svg>
+<div class="relative">
+<div class="flex items-center gap-3 mb-5">
+<span class="w-11 h-11 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center flex-shrink-0"><svg class="w-5 h-5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 4.556-3.04 8.339-7.2 9.542A11.955 11.955 0 0 1 12 21.75c-.67 0-1.325-.055-1.965-.16A11.955 11.955 0 0 1 3 12V6.912a1.5 1.5 0 0 1 .933-1.387l6.75-2.7a1.5 1.5 0 0 1 1.113 0l6.75 2.7A1.5 1.5 0 0 1 21 6.912V12Z"/></svg></span>
+<span class="text-[10px] font-mono uppercase tracking-wider text-slate-700">Governance · 04/05</span>
+</div>
+<h4 class="text-xl md:text-2xl font-serif font-black text-charcoal mb-3 leading-snug">Explainability isn't optional</h4>
+<p class="text-sm text-charcoal/70 leading-relaxed max-w-xl">If a model declines someone, there has to be a reason you can say out loud — to a regulator, a customer, or yourself. That's why I reach for scorecards before black boxes.</p>
+<div class="flex flex-wrap gap-2.5 mt-6">
+<span class="text-[11px] font-mono px-3 py-1.5 rounded-full bg-neutral-50 border border-charcoal/10 text-charcoal/60">Interpretable by design</span>
+<span class="text-[11px] font-mono font-bold px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-slate-700">→ Signed off</span>
+</div>
+</div>
+</div>
+
+<div class="principle-panel relative" id="principle-5" role="tabpanel" hidden>
+<svg class="absolute -right-6 -top-8 w-40 h-40 text-violet-500/[0.06]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z"/></svg>
+<div class="relative">
+<div class="flex items-center gap-3 mb-5">
+<span class="w-11 h-11 rounded-xl bg-violet-50 border border-violet-200 flex items-center justify-center flex-shrink-0"><svg class="w-5 h-5 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z"/></svg></span>
+<span class="text-[10px] font-mono uppercase tracking-wider text-violet-800">GenAI · 05/05</span>
+</div>
+<h4 class="text-xl md:text-2xl font-serif font-black text-charcoal mb-3 leading-snug">Where LLMs actually help</h4>
+<p class="text-sm text-charcoal/70 leading-relaxed max-w-xl">Not in making the decision — in everything around it. I built a RAG chatbot that answers from internal documents with the source attached. Retrieval with a citation is useful; a language model guessing a credit decision is not.</p>
+<div class="flex flex-wrap gap-2.5 mt-6">
+<span class="text-[11px] font-mono px-3 py-1.5 rounded-full bg-neutral-50 border border-charcoal/10 text-charcoal/60">Document-grounded</span>
+<span class="text-[11px] font-mono font-bold px-3 py-1.5 rounded-full bg-violet-50 border border-violet-200 text-violet-700">→ Cited answers</span>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+
+<!-- Closing quote -->
+<div class="relative mt-6 bg-charcoal text-alabaster rounded-xl p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center gap-4 justify-between overflow-hidden" data-reveal data-delay="90">
+<svg class="absolute -right-6 -bottom-8 w-32 h-32 text-citiBlue/10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 0 1-.825-.242m9.345-8.334a2.126 2.126 0 0 0-.476-.095 48.64 48.64 0 0 0-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0 0 11.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155"/></svg>
+<p class="relative font-serif italic text-base md:text-lg leading-relaxed max-w-2xl">"A model that can't be explained doesn't get deployed — and shouldn't."</p>
+<p class="relative text-[11px] font-mono uppercase tracking-widest text-citiBlue whitespace-nowrap flex-shrink-0">— how I work</p>
+</div>
+</div>
+</section>
+<!-- END: Credit is Access -->
+
+<!-- BEGIN: Experience -->
+<section class="py-24 bg-alabaster" id="pedigree">
+<div class="max-w-7xl mx-auto px-6 md:px-12">
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-4 pb-6 border-b border-charcoal/10 gap-6">
+<div data-reveal>
+<span class="editorial-label text-citiNavy">Trajectory &amp; foundation</span>
+<h2 class="text-3xl md:text-5xl font-serif font-black tracking-tight text-charcoal mt-1">Experience &amp; Education</h2>
+</div>
+<div class="max-w-md" data-reveal data-delay="90">
+<p class="text-xs md:text-sm text-charcoal/70 leading-relaxed">Statistics, then operational research, then a diploma from IIT Madras alongside the day job — deployed inside an NBFC and a global bank.</p>
+</div>
+</div>
+
+<div class="flex items-center gap-2 text-[11px] font-mono uppercase tracking-widest text-charcoal/40 mb-12" data-reveal>
+<span class="hidden lg:inline">Hover an entry to see the place</span><span class="lg:hidden">Tap an entry to see the place</span><span class="text-citiBlue">↗</span>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-14 lg:gap-16 items-start">
+
+<!-- Experience log -->
+<div data-reveal>
+<span class="editorial-label text-citiNavy">Experience log</span>
+<h3 class="text-2xl md:text-3xl font-serif font-black text-charcoal mt-1 mb-9">Production roles</h3>
+
+<div class="relative pl-8">
+<div class="absolute left-[5px] top-2 bottom-2 w-px bg-charcoal/10"></div>
+
+<article class="place-hover group relative pb-10" data-reveal data-preview-img="https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&q=70&auto=format&fit=crop" data-preview-label="Bengaluru, India">
+<span class="absolute -left-8 top-1.5 w-2.5 h-2.5 rounded-full bg-citiBlue ring-4 ring-alabaster"></span>
+<div class="text-[10px] font-mono uppercase tracking-widest text-citiNavy mb-1">Jul 2026 — Present <span class="text-emerald-600 font-bold">• Current</span></div>
+<h4 class="text-lg md:text-xl font-serif font-black text-charcoal group-hover:text-citiNavy transition-colors">Citi · Risk Decision Model Developer</h4>
+<p class="text-xs font-mono text-charcoal/45 mt-1">US Branded Cards · Bengaluru</p>
+<p class="text-sm text-charcoal/70 mt-2.5 leading-relaxed max-w-md">Risk decision models behind acquisition, line assignment and account management on a revolving credit book.</p>
+<div class="flex flex-wrap gap-2 mt-3.5 text-[10px] font-mono">
+<span class="px-2 py-1 rounded bg-blue-50 border border-blue-200 text-citiNavy">Risk decisioning</span>
+<span class="px-2 py-1 rounded bg-blue-50 border border-blue-200 text-citiNavy">Machine Learning</span>
+</div>
+</article>
+
+<article class="place-hover group relative pb-10" data-reveal data-delay="90" data-preview-img="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600&q=70&auto=format&fit=crop" data-preview-label="Mumbai, India">
+<span class="absolute -left-8 top-1.5 w-2.5 h-2.5 rounded-full bg-charcoal/25 ring-4 ring-alabaster"></span>
+<div class="text-[10px] font-mono uppercase tracking-widest text-charcoal/45 mb-1">Jun 2024 — Jun 2026</div>
+<h4 class="text-lg md:text-xl font-serif font-black text-charcoal group-hover:text-citiNavy transition-colors">Aditya Birla Capital · Data Scientist</h4>
+<p class="text-xs font-mono text-charcoal/45 mt-1">Lending &amp; Wealth · Mumbai</p>
+<p class="text-sm text-charcoal/70 mt-2.5 leading-relaxed max-w-md">Built the credit models across the lending book — EMI bounce prediction (<strong class="text-charcoal font-semibold">86% AUC</strong>, 77% capture in the top 20% pool, <strong class="text-charcoal font-semibold">+40%</strong> recovery), top-up offers, application scorecards, and real-time scoring inside underwriting (<strong class="text-charcoal font-semibold">−30%</strong> turnaround) — plus a RAG chatbot POC over internal documents.</p>
+<div class="flex flex-wrap gap-2 mt-3.5 text-[10px] font-mono">
+<span class="px-2 py-1 rounded bg-emerald-50 border border-emerald-200 text-emerald-800">86% AUC</span>
+<span class="px-2 py-1 rounded bg-emerald-50 border border-emerald-200 text-emerald-800">−30% TAT</span>
+<span class="px-2 py-1 rounded bg-blue-50 border border-blue-200 text-citiNavy">+18% conversion</span>
+</div>
+</article>
+
+<article class="place-hover group relative" data-reveal data-delay="180" data-preview-img="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=70&auto=format&fit=crop" data-preview-label="Remote">
+<span class="absolute -left-8 top-1.5 w-2.5 h-2.5 rounded-full bg-charcoal/25 ring-4 ring-alabaster"></span>
+<div class="text-[10px] font-mono uppercase tracking-widest text-charcoal/45 mb-1">Aug — Sep 2022</div>
+<h4 class="text-lg md:text-xl font-serif font-black text-charcoal group-hover:text-citiNavy transition-colors">Tata Group · Summer Intern</h4>
+<p class="text-xs font-mono text-charcoal/45 mt-1">Credit &amp; Collections · Remote</p>
+<p class="text-sm text-charcoal/70 mt-2.5 leading-relaxed max-w-md">Analysed credit and collections scenarios to find performance gaps, defined and tracked KPIs, and presented findings to product and policy teams.</p>
+<div class="flex flex-wrap gap-2 mt-3.5 text-[10px] font-mono">
+<span class="px-2 py-1 rounded bg-blue-50 border border-blue-200 text-citiNavy">KPIs</span>
+<span class="px-2 py-1 rounded bg-blue-50 border border-blue-200 text-citiNavy">Portfolio health</span>
+</div>
+</article>
+</div>
+</div>
+
+<!-- Academic degrees -->
+<div data-reveal data-delay="90">
+<span class="editorial-label text-citiNavy">Foundational rigor</span>
+<h3 class="text-2xl md:text-3xl font-serif font-black text-charcoal mt-1 mb-9">Academic degrees</h3>
+
+<div class="space-y-4">
+<div class="place-hover relative p-6 rounded-xl bg-neutral-50 border border-charcoal/10 hover:border-citiBlue/30 hover:-translate-y-0.5 transition-all" data-preview-img="https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=600&q=70&auto=format&fit=crop" data-preview-label="Chennai, India">
+<div class="text-[10px] font-mono uppercase tracking-widest text-citiBlue mb-2">Specialised diploma · Sep 2022 — Dec 2024</div>
+<h4 class="text-lg font-serif font-black text-charcoal">IIT Madras</h4>
+<p class="text-xs text-charcoal/60 mt-1">Diploma in Programming &amp; Data Science</p>
+</div>
+<div class="place-hover relative p-6 rounded-xl bg-neutral-50 border border-charcoal/10 hover:border-citiBlue/30 hover:-translate-y-0.5 transition-all" data-preview-img="/assets/du1.jpeg" data-preview-label="Delhi, India">
+<div class="text-[10px] font-mono uppercase tracking-widest text-citiBlue mb-2">Master of Science · Dec 2022 — May 2024</div>
+<h4 class="text-lg font-serif font-black text-charcoal">University of Delhi</h4>
+<p class="text-xs text-charcoal/60 mt-1">M.Sc. Operational Research</p>
+<p class="text-xs text-charcoal/45 mt-1.5 leading-relaxed">Optimisation, stochastic models and decision theory.</p>
+</div>
+<div class="place-hover relative p-6 rounded-xl bg-neutral-50 border border-charcoal/10 hover:border-citiBlue/30 hover:-translate-y-0.5 transition-all" data-preview-img="https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?w=600&q=70&auto=format&fit=crop" data-preview-label="Kolkata, India">
+<div class="text-[10px] font-mono uppercase tracking-widest text-citiBlue mb-2">Bachelor of Science · Jul 2019 — Aug 2022</div>
+<h4 class="text-lg font-serif font-black text-charcoal">University of Calcutta</h4>
+<p class="text-xs text-charcoal/60 mt-1">B.Sc. Statistics</p>
+</div>
+
+<div class="p-6 rounded-xl bg-blue-50 border border-blue-200">
+<div class="text-[10px] font-mono uppercase tracking-widest text-citiNavy mb-2">Also</div>
+<ul class="space-y-1.5 text-sm text-charcoal/70">
+<li class="flex gap-2"><span class="text-citiBlue">▸</span><span>500+ LeetCode problems solved — <a class="text-citiBlue font-semibold hover:underline" href="https://leetcode.com/u/Nasrin_/" target="_blank" rel="noopener">profile ↗</a></span></li>
+<li class="flex gap-2"><span class="text-citiBlue">▸</span><span>5★ HackerRank · Python &amp; SQL</span></li>
+<li class="flex gap-2"><span class="text-citiBlue">▸</span><span>Mentored MBA students in data analytics</span></li>
+</ul>
+</div>
+</div>
+</div>
+
+</div>
+
+<!-- "place" preview — follows the cursor on hover-capable devices, or pops
+     up near the tapped entry on touch. One instance for the whole timeline. -->
+<div class="fixed top-0 left-0 z-50 w-36 h-48 rounded-lg overflow-hidden shadow-2xl border border-charcoal/10 pointer-events-none opacity-0 scale-95 transition-[opacity,transform] duration-300 ease-out" id="placePreview" aria-hidden="true">
+<img alt="" class="w-full h-full object-cover grayscale contrast-110" id="placePreviewImg" src=""/>
+<div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-charcoal/85 to-transparent p-3">
+<p class="text-[10px] font-mono uppercase tracking-widest text-alabaster" id="placePreviewLabel"></p>
+</div>
+</div>
+
+<!-- Toolkit -->
+<div class="mt-16">
+<span class="editorial-label text-citiNavy" data-reveal>Toolkit</span>
+<h3 class="text-2xl md:text-3xl font-serif font-black text-charcoal mt-1 mb-10" data-reveal data-delay="80">What I actually use</h3>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-0 md:divide-x divide-charcoal/10" data-reveal data-delay="120">
+
+<!-- Languages & Frameworks -->
+<div class="min-w-0 md:pr-10">
+<span class="text-[10px] font-mono uppercase tracking-widest text-charcoal/40">Fluent in</span>
+<h4 class="text-lg font-serif font-black text-charcoal mt-1 mb-6">Languages &amp; Frameworks</h4>
+<div id="toolkitLang"></div>
+</div>
+
+<!-- Machine Learning -->
+<div class="min-w-0 md:px-10">
+<span class="text-[10px] font-mono uppercase tracking-widest text-charcoal/40">Day to day</span>
+<h4 class="text-lg font-serif font-black text-charcoal mt-1 mb-6">Machine Learning</h4>
+<div id="toolkitML"></div>
+</div>
+
+<!-- Tools & Technologies -->
+<div class="min-w-0 md:pl-10">
+<span class="text-[10px] font-mono uppercase tracking-widest text-charcoal/40">Also reach for</span>
+<h4 class="text-lg font-serif font-black text-charcoal mt-1 mb-6">Tools &amp; Platforms</h4>
+<p class="font-serif leading-loose text-charcoal/75 break-words" id="toolkitTools"></p>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+<!-- END: Experience -->
+
+<!-- BEGIN: Projects -->
+<section class="py-24 bg-paper border-y border-charcoal/10" id="projects">
+<div class="max-w-7xl mx-auto px-6 md:px-12">
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-16 pb-6 border-b border-charcoal/10 gap-4">
+<div data-reveal>
+<span class="editorial-label text-citiNavy">Built outside work</span>
+<h2 class="text-3xl md:text-5xl font-serif font-black tracking-tight text-charcoal mt-1">Selected Projects</h2>
+</div>
+<a class="text-xs font-mono uppercase tracking-widest text-citiNavy hover:text-citiBlue flex items-center space-x-1 font-semibold" href="https://github.com/your-handle" target="_blank" rel="noopener" data-reveal data-delay="90">
+<span>View all repositories</span><span>→</span>
+</a>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+  <article class="group bg-white rounded-2xl border border-charcoal/10 overflow-hidden flex flex-col justify-between hover:-translate-y-1.5 transition-all hover:border-citiBlue/30 hover:shadow-lg" data-reveal>
+    <div class="relative aspect-[16/10] bg-neutral-100 overflow-hidden">
+      <img alt="Food recommendation engine" loading="lazy" class="w-full h-full object-cover grayscale contrast-110 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700" src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=700&q=70&auto=format&fit=crop"/>
+    </div>
+    <div class="p-8 flex flex-col justify-between flex-1">
+      <div>
+        <div class="flex justify-between items-start text-xs font-mono text-charcoal/50 mb-4"><span>01 // AGENTIC</span><span class="text-citiNavy font-bold">Python / MCP</span></div>
+          <h3 class="text-2xl font-serif font-bold text-charcoal mb-3">Food Recommendation Engine</h3>
+          <p class="text-xs text-charcoal/70 leading-relaxed">An MCP-powered system that blends mood-based preference modelling with price optimisation to find the best-and-cheapest option, ranking menu items in real time.</p>
+        </div>
+        <div class="mt-8 pt-4 border-t border-charcoal/10 flex items-center justify-between text-xs font-mono">
+          <span class="text-citiNavy font-semibold bg-blue-50 px-2 py-0.5 rounded border border-blue-200">Oct — Dec 2025</span>
+          <a class="text-citiNavy underline hover:text-citiBlue font-semibold" href="#">Add link ↗</a>
+        </div>
+      </div>
+  </article>
+
+<article class="group bg-white rounded-2xl border border-charcoal/10 overflow-hidden flex flex-col justify-between hover:-translate-y-1.5 transition-all hover:border-citiBlue/30 hover:shadow-lg" data-reveal data-delay="100">
+<div class="relative aspect-[16/10] bg-neutral-100 overflow-hidden">
+<img alt="Low-light computer vision" loading="lazy" class="w-full h-full object-cover grayscale contrast-110 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700" src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=700&q=70&auto=format&fit=crop"/>
+</div>
+<div class="p-8 flex flex-col justify-between flex-1">
+<div>
+<div class="flex justify-between items-start text-xs font-mono text-charcoal/50 mb-4"><span>02 // VISION</span><span class="text-citiNavy font-bold">Python / OpenCV</span></div>
+<h3 class="text-2xl font-serif font-bold text-charcoal mb-3">Low-Light Denoising &amp; 4× Super-Resolution</h3>
+<p class="text-xs text-charcoal/70 leading-relaxed">A PSNR-first pipeline for low-light images, with a validation-driven sweep that auto-selects the denoiser and upsampler instead of hand-tuning them.</p>
+</div>
+<div class="mt-8 pt-4 border-t border-charcoal/10 flex items-center justify-between text-xs font-mono">
+<span class="text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">~37 dB PSNR</span>
+<a class="text-citiNavy underline hover:text-citiBlue font-semibold" href="#">Add link ↗</a>
+</div>
+</div>
+</article>
+
+<article class="group bg-white rounded-2xl border border-charcoal/10 overflow-hidden flex flex-col justify-between hover:-translate-y-1.5 transition-all hover:border-citiBlue/30 hover:shadow-lg" data-reveal data-delay="200">
+<div class="relative aspect-[16/10] bg-neutral-100 overflow-hidden">
+<img alt="Warehouse inventory" loading="lazy" class="w-full h-full object-cover grayscale contrast-110 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700" src="https://images.unsplash.com/photo-1553413077-190dd305871c?w=700&q=70&auto=format&fit=crop"/>
+</div>
+<div class="p-8 flex flex-col justify-between flex-1">
+<div>
+<div class="flex justify-between items-start text-xs font-mono text-charcoal/50 mb-4"><span>03 // OPTIMISATION</span><span class="text-citiNavy font-bold">Python / OR</span></div>
+<h3 class="text-2xl font-serif font-bold text-charcoal mb-3">Inventory Optimization</h3>
+<p class="text-xs text-charcoal/70 leading-relaxed">Demand forecasting on retail sales with ABC prioritisation, then Wagner–Whitin dynamic lot-sizing to turn forecasts into actual order timing and quantities.</p>
+</div>
+<div class="mt-8 pt-4 border-t border-charcoal/10 flex items-center justify-between text-xs font-mono">
+<span class="text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">MAE 10</span>
+<a class="text-citiNavy underline hover:text-citiBlue font-semibold" href="#">Add link ↗</a>
+</div>
+</div>
+</article>
+</div>
+</div>
+</section>
+<!-- END: Projects -->
+
+<!-- BEGIN: Beyond -->
+<section class="py-24 bg-alabaster" id="beyond">
+<div class="max-w-7xl mx-auto px-6 md:px-12">
+<div class="max-w-2xl mb-12">
+<span class="editorial-label text-citiNavy" data-reveal>Off the clock</span>
+<h2 class="text-3xl md:text-5xl font-serif font-black tracking-tight text-charcoal mt-1" data-reveal data-delay="80">I go where the road runs out.</h2>
+<p class="text-sm text-charcoal/70 mt-3 leading-relaxed" data-reveal data-delay="150">
+Offbeat places — the ones that take a bad road and a bit of asking around to reach. Mountains mostly,
+seas when I can, and I say yes to almost any adventure activity going. When I'm sitting still, I sketch.
+</p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-stretch">
+<!-- Feature photo -->
+<div class="md:col-span-7 relative rounded-2xl overflow-hidden bg-neutral-900 group min-h-[260px] md:min-h-[420px]" data-reveal>
+<img alt="Mountain ridgeline at altitude" loading="lazy" class="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-[900ms]" src="/assets/hero.png"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent pointer-events-none"></div>
+<div class="absolute bottom-6 left-6 right-6 text-white">
+<span class="text-[10px] font-mono uppercase tracking-widest text-blue-200">Mountains &amp; trails</span>
+<h3 class="text-xl md:text-2xl font-serif font-bold mt-1">Trekking, and the places with no signal</h3>
+<p class="text-xs text-neutral-300 mt-2">The bad-road destinations are always the ones worth the trip.</p>
+</div>
+</div>
+
+<div class="md:col-span-5 flex flex-col justify-between space-y-6">
+<div class="bg-white p-6 rounded-2xl border border-charcoal/10 flex items-start space-x-5 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all hover:border-citiBlue/20" data-reveal data-delay="100">
+<div class="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 bg-neutral-100"><img alt="Sketching in a notebook" loading="lazy" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500" src="assets/sketch.jpeg"/></div>
+<div class="flex-1">
+<span class="text-[10px] font-mono uppercase tracking-wider text-citiNavy">Pen &amp; paper</span>
+<h4 class="font-serif font-bold text-base text-charcoal mt-0.5">Sketching</h4>
+<p class="text-xs text-charcoal/65 mt-1 leading-relaxed">The one thing I do that has no metric attached to it — and probably why it makes me better at the rest.</p>
+</div>
+</div>
+
+<div class="bg-white p-6 rounded-2xl border border-charcoal/10 flex items-start space-x-5 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all hover:border-citiBlue/20" data-reveal data-delay="180">
+<div class="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 bg-neutral-100"><img alt="Notebook and pen" loading="lazy" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500" src="https://images.unsplash.com/photo-1517842645767-c639042777db?w=240&q=70&auto=format&fit=crop"/></div>
+<div class="flex-1">
+<span class="text-[10px] font-mono uppercase tracking-wider text-citiNavy">Screen time</span>
+<h4 class="font-serif font-bold text-base text-charcoal mt-0.5">Series &amp; films</h4>
+<p class="text-xs text-charcoal/65 mt-1 leading-relaxed">Usually one more episode than I planned. Good writing is good structure — same instinct that makes a clean model satisfying.</p>
+</div>
+</div>
+
+<div class="p-5 rounded-2xl bg-charcoal text-alabaster text-xs font-serif italic leading-relaxed" data-reveal data-delay="240">
+"Sketching is just paying attention on purpose. Turns out that is most of model development too."
+</div>
+</div>
+</div>
+
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+
+  <figure class="group" data-reveal>
+    <div class="relative rounded-xl overflow-hidden bg-neutral-100 aspect-[3/4] border border-charcoal/10 hover:-translate-y-1 transition-all duration-500">
+      <img
+        alt="Mountain lake"
+        loading="lazy"
+        class="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105"
+        src="/assets/pic1_test.jpeg"
+      />
+    </div>
+    <!-- <figcaption class="pop-caption mt-2.5 h-8 flex items-center justify-center gap-1.5 opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0">
+      <span class="w-1 h-1 rounded-full bg-citiBlue flex-shrink-0"></span>
+      <p class="text-[10px] font-mono uppercase tracking-wide text-charcoal/55 text-center leading-snug">Where the trail finally opens up</p>
+    </figcaption> -->
+  </figure>
+
+  <figure class="group" data-reveal data-delay="80">
+    <div class="relative rounded-xl overflow-hidden bg-neutral-100 aspect-[3/4] border border-charcoal/10 hover:-translate-y-1 transition-all duration-500">
+      <img
+        alt="Forest trail"
+        loading="lazy"
+        class="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105"
+        src="/assets/web pic.png"
+      />
+    </div>
+    <!-- <figcaption class="pop-caption mt-2.5 h-8 flex items-center justify-center gap-1.5 opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0">
+      <span class="w-1 h-1 rounded-full bg-citiBlue flex-shrink-0"></span>
+      <p class="text-[10px] font-mono uppercase tracking-wide text-charcoal/55 text-center leading-snug">No signal for miles, and it's better that way</p>
+    </figcaption> -->
+  </figure>
+
+  <figure class="group" data-reveal data-delay="160">
+    <div class="relative rounded-xl overflow-hidden bg-neutral-100 aspect-[3/4] border border-charcoal/10 hover:-translate-y-1 transition-all duration-500">
+      <img
+        alt="The sea"
+        loading="lazy"
+        class="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105"
+        src="/assets/crop_pic.png"
+      />
+    </div>
+    <!-- <figcaption class="pop-caption mt-2.5 h-8 flex items-center justify-center gap-1.5 opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0">
+      <span class="w-1 h-1 rounded-full bg-citiBlue flex-shrink-0"></span>
+      <p class="text-[10px] font-mono uppercase tracking-wide text-charcoal/55 text-center leading-snug">Somewhere the plans stopped mattering</p>
+    </figcaption> -->
+  </figure>
+
+  <figure
+    class="group relative rounded-xl overflow-hidden bg-neutral-100 aspect-[3/4] border border-charcoal/10 hover:-translate-y-1 transition-all duration-500"
+    data-reveal
+    data-delay="240"
+  >
+    <img
+      alt="Snow peak at night"
+      loading="lazy"
+      class="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105"
+      src="/assets/sea1.jpeg"
+    />
+    <!-- <figcaption class="absolute inset-0 flex items-end justify-center p-3 bg-gradient-to-t from-black/60 via-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+      <p class="pop-badge inline-flex items-center gap-1.5 max-w-[90%] px-3 py-1.5 mb-1 rounded-full bg-black/80 backdrop-blur-sm text-white text-[10px] font-mono uppercase tracking-wide text-center leading-snug shadow-lg scale-75 translate-y-2 opacity-0 group-hover:scale-100 group-hover:translate-y-0 group-hover:opacity-100">
+        <span class="w-1 h-1 rounded-full bg-citiBlue flex-shrink-0"></span>
+        Higher, colder, worth it
+      </p>
+    </figcaption> -->
+  </figure>
+
+</div>
+
+<!-- <div class="flex flex-wrap gap-2 mt-8" data-reveal>
+<span class="px-4 py-2 rounded-full bg-white border border-charcoal/10 text-sm hover:border-citiBlue hover:text-citiBlue hover:-translate-y-0.5 transition-all">Offbeat travel</span>
+<span class="px-4 py-2 rounded-full bg-white border border-charcoal/10 text-sm hover:border-citiBlue hover:text-citiBlue hover:-translate-y-0.5 transition-all">Mountains</span>
+<span class="px-4 py-2 rounded-full bg-white border border-charcoal/10 text-sm hover:border-citiBlue hover:text-citiBlue hover:-translate-y-0.5 transition-all">Seas</span>
+<span class="px-4 py-2 rounded-full bg-white border border-charcoal/10 text-sm hover:border-citiBlue hover:text-citiBlue hover:-translate-y-0.5 transition-all">Trekking</span>
+<span class="px-4 py-2 rounded-full bg-white border border-charcoal/10 text-sm hover:border-citiBlue hover:text-citiBlue hover:-translate-y-0.5 transition-all">Adventure sports</span>
+<span class="px-4 py-2 rounded-full bg-white border border-charcoal/10 text-sm hover:border-citiBlue hover:text-citiBlue hover:-translate-y-0.5 transition-all">Sketching</span>
+<span class="px-4 py-2 rounded-full bg-white border border-charcoal/10 text-sm hover:border-citiBlue hover:text-citiBlue hover:-translate-y-0.5 transition-all">Series &amp; films</span>
+</div> -->
+</div>
+</section>
+<!-- END: Beyond -->
+
+<!-- BEGIN: Contact -->
+<section class="relative overflow-hidden py-24 bg-paper border-t border-charcoal/10" id="contact">
+
+<!-- ============================================================
+     GRADIENT DESCENT v2 — a real Three.js/WebGL loss surface.
+     Sits as a direct child of the section (not the grid), so at
+     md+ it can go position:absolute and bleed across the whole
+     section, right-biased, with nothing boxing it in. The form
+     below sits in a z-10 stack above it. On mobile it stays a
+     normal, modest in-flow block up top (so touch-scroll outside
+     it still works, and the page doesn't end on it). -->
+<div id="gd2-section" data-reveal>
+
+<div id="gd2-canvas-container"></div>
+
+<div class="gd2-overlay">
+<div class="gd2-header">
+<div class="gd2-eyebrow">Gradient Descent</div>
+<div class="gd2-subtitle">Finding the global minimum</div>
+</div>
+
+<div class="gd2-info-card">
+<div class="gd2-info-title">Current position</div>
+<div class="gd2-info-row"><span>x</span><strong id="gd2-x-value">2.80</strong></div>
+<div class="gd2-info-row"><span>y</span><strong id="gd2-y-value">2.20</strong></div>
+<div class="gd2-info-row"><span>Loss</span><strong id="gd2-loss-value">—</strong></div>
+<div class="gd2-info-row"><span>Iteration</span><strong id="gd2-iteration-value">0</strong></div>
+</div>
+
+<div class="gd2-controls">
+<div class="gd2-controls-row">
+<label>Learning rate</label>
+<input id="gd2-learning-rate" max="0.15" min="0.01" step="0.01" type="range" value="0.06"/>
+<span id="gd2-lr-value">0.06</span>
+<button id="gd2-restart" type="button">Restart</button>
+</div>
+<div class="gd2-controls-row" id="gd2-optimizers" role="tablist" aria-label="Optimisation algorithm">
+<button class="gd2-opt is-active" data-opt="sgd" type="button">SGD</button>
+<button class="gd2-opt" data-opt="momentum" type="button">Momentum</button>
+<button class="gd2-opt" data-opt="adagrad" type="button">Adagrad</button>
+<button class="gd2-opt" data-opt="rmsprop" type="button">RMSprop</button>
+</div>
+</div>
+
+<div class="gd2-instruction">Click the surface to descend from there<br/>Drag to orbit · Scroll to zoom</div>
+</div>
+
+</div>
+
+<div class="relative z-10 max-w-7xl mx-auto px-6 md:px-12 pointer-events-none">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-12 items-start">
+
+<div class="md:col-span-7 space-y-8 pointer-events-auto">
+<div data-reveal>
+<span class="editorial-label text-citiNavy">Get in touch</span>
+<h2 class="text-4xl md:text-6xl font-serif font-black tracking-tight text-charcoal mt-2 leading-[1.05]">Let's talk.</h2>
+<p class="text-sm md:text-base text-charcoal/70 mt-4 max-w-lg leading-relaxed">
+Roles, credit risk problems, GenAI experiments, or where to trek next.
+I reply to everything within a couple of days.
+</p>
+</div>
+
+<form id="contactForm" novalidate class="max-w-lg space-y-6" data-reveal data-delay="100">
+<div class="border-b border-charcoal/20 focus-within:border-citiBlue transition-colors pb-2">
+<label class="text-[10px] font-mono uppercase tracking-widest text-charcoal/50" for="fName">Your name</label>
+<input class="bg-transparent border-0 p-0 pt-1 text-base text-charcoal placeholder-charcoal/30 focus:ring-0 w-full" id="fName" name="name" placeholder="Name" required type="text"/>
+<span class="err text-[11px] text-red-600 block min-h-[1em]" data-err="fName"></span>
+</div>
+<div class="border-b border-charcoal/20 focus-within:border-citiBlue transition-colors pb-2">
+<label class="text-[10px] font-mono uppercase tracking-widest text-charcoal/50" for="fEmail">Email</label>
+<input class="bg-transparent border-0 p-0 pt-1 text-base text-charcoal placeholder-charcoal/30 focus:ring-0 w-full" id="fEmail" name="email" placeholder="you@example.com" required type="email"/>
+<span class="err text-[11px] text-red-600 block min-h-[1em]" data-err="fEmail"></span>
+</div>
+<div class="border-b border-charcoal/20 focus-within:border-citiBlue transition-colors pb-2">
+<label class="text-[10px] font-mono uppercase tracking-widest text-charcoal/50" for="fMsg">What's on your mind?</label>
+<textarea class="bg-transparent border-0 p-0 pt-1 text-base text-charcoal placeholder-charcoal/30 focus:ring-0 w-full resize-none" id="fMsg" name="message" placeholder="A sentence or two…" required rows="3"></textarea>
+<span class="err text-[11px] text-red-600 block min-h-[1em]" data-err="fMsg"></span>
+</div>
+<button class="group inline-flex items-center space-x-3 bg-charcoal hover:bg-citiNavy text-alabaster text-sm font-medium px-7 py-3.5 rounded-full transition-all hover:shadow-lg hover:-translate-y-0.5" type="submit">
+<span>Send message</span>
+<span class="group-hover:translate-x-1 transition-transform">→</span>
+</button>
+<p class="text-xs font-mono text-emerald-700 min-h-[1.4em]" id="formNote" role="status" aria-live="polite"></p>
+</form>
+
+<div class="flex flex-wrap gap-3" data-reveal data-delay="120">
+<a class="w-10 h-10 flex items-center justify-center rounded-full border border-charcoal/15 hover:border-citiBlue hover:text-citiBlue text-charcoal/60 transition-colors" href="mailto:nasrinakhtar075@gmail.com" aria-label="Email" title="Email">
+<svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M3 4a2 2 0 0 0-2 2v1.161l8.441 4.221a1.25 1.25 0 0 0 1.118 0L19 7.162V6a2 2 0 0 0-2-2H3Z"/><path d="M19 8.839l-7.77 3.885a2.75 2.75 0 0 1-2.46 0L1 8.839V14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.839Z"/></svg>
+</a>
+<a class="w-10 h-10 flex items-center justify-center rounded-full border border-charcoal/15 hover:border-citiBlue hover:text-citiBlue text-charcoal/60 transition-colors" href="tel:+918017249934" aria-label="Phone" title="Phone">
+<svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M2 3.5A1.5 1.5 0 0 1 3.5 2h1.148a1.5 1.5 0 0 1 1.465 1.175l.716 3.223a1.5 1.5 0 0 1-.826 1.68l-.94.47a6.002 6.002 0 0 0 2.939 2.94l.47-.94a1.5 1.5 0 0 1 1.68-.826l3.223.716A1.5 1.5 0 0 1 18 15.352V16.5a1.5 1.5 0 0 1-1.5 1.5H15c-1.149 0-2.263-.15-3.326-.43A13.022 13.022 0 0 1 2.43 8.326 13.019 13.019 0 0 1 2 5V3.5Z" clip-rule="evenodd"/></svg>
+</a>
+<a class="w-10 h-10 flex items-center justify-center rounded-full border border-charcoal/15 hover:border-citiBlue hover:text-citiBlue text-charcoal/60 transition-colors" href="https://www.linkedin.com/in/nasrin-akhtar51/" target="_blank" rel="noopener" aria-label="LinkedIn" title="LinkedIn">
+<svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+</a>
+<a class="w-10 h-10 flex items-center justify-center rounded-full border border-charcoal/15 hover:border-citiBlue hover:text-citiBlue text-charcoal/60 transition-colors" href="https://github.com/Nasrin-Akhtar" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub">
+<svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+</a>
+<a class="w-10 h-10 flex items-center justify-center rounded-full border border-charcoal/15 hover:border-citiBlue hover:text-citiBlue text-charcoal/60 transition-colors" href="https://leetcode.com/u/Nasrin_/" target="_blank" rel="noopener" aria-label="LeetCode" title="LeetCode">
+<svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.483 0a1.374 1.374 0 0 0-.961.438L7.116 6.226l-3.854 4.126a5.266 5.266 0 0 0-1.209 2.104 5.35 5.35 0 0 0-.125.513 5.527 5.527 0 0 0 .062 2.362 5.83 5.83 0 0 0 .349 1.017 5.938 5.938 0 0 0 1.271 1.818l4.277 4.193.039.038c2.248 2.165 5.852 2.133 8.063-.074l2.396-2.392c.54-.54.54-1.414.003-1.955a1.378 1.378 0 0 0-1.951-.003l-2.396 2.392a3.021 3.021 0 0 1-4.205.038l-.02-.019-4.276-4.193c-.652-.64-.972-1.469-.948-2.263a2.68 2.68 0 0 1 .066-.523 2.545 2.545 0 0 1 .619-1.164L9.13 8.114c1.058-1.134 3.204-1.27 4.43-.278l3.501 2.831c.593.48 1.461.387 1.94-.207a1.384 1.384 0 0 0-.207-1.943l-3.5-2.831c-.8-.647-1.766-1.045-2.774-1.202l2.015-2.158A1.384 1.384 0 0 0 13.483 0zm-2.866 12.815a1.38 1.38 0 0 0-1.38 1.382 1.38 1.38 0 0 0 1.38 1.382H20.79a1.38 1.38 0 0 0 1.38-1.382 1.38 1.38 0 0 0-1.38-1.382z"/></svg>
+</a>
+<a class="w-10 h-10 flex items-center justify-center rounded-full border border-charcoal/15 hover:border-citiBlue hover:text-citiBlue text-charcoal/60 transition-colors" href="https://public.tableau.com/app/profile/nasrin.akhtar/vizzes" target="_blank" rel="noopener" aria-label="Tableau" title="Tableau">
+<svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M11.654.174V2.377H9.682v.58h1.972V5.16h.696V2.957h1.97v-.58h-1.97V.174h-.348zm6.03 2.262l-.002 1.623v1.623h-2.957v.927h2.957v3.188H18.725l.011-1.582.02-1.576 1.465-.02 1.46-.01v-.927H18.728V2.436h-.522zm-12.407.06V5.686H2.291v.925H5.277V9.801h.985V6.61h3.013v-.925H6.262V2.496H5.77zm6.086 5.27v3.593H8.06v1.188h3.304v3.596h1.28v-3.596H15.953v-1.188H12.643V7.766h-.637zm9.721 1.55v2.221h-2.012v.811h2.012v2.261h.887v-2.261H24v-.811h-2.029V9.317h-.422zm-19.111.131V11.621H0v.621H1.973v2.194H2.64v-2.194h2v-.62H2.609V9.446h-.318zm15.709 4.516v3.254h-3.016v.927h3.016v3.217h1.072v-3.216H21.74v-.928H18.754v-3.254h-.533zm-12.463.008v3.246H2.262v.928h2.957v3.189H6.32v-3.189h2.955v-.928H6.32V13.97h-.55zm6.316 4.578l.002 1.103v1.1H9.566v.812h1.971v2.262h.928l.012-1.119.017-1.143H14.463v-.812h-2V18.549h-.465z"/></svg>
+</a>
+<a class="w-10 h-10 flex items-center justify-center rounded-full border border-charcoal/15 hover:border-citiBlue hover:text-citiBlue text-charcoal/60 transition-colors" href="https://www.instagram.com/nas.rin.ak/" target="_blank" rel="noopener" aria-label="Instagram" title="Instagram">
+<svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077"/></svg>
+</a>
+</div>
+
+<div class="pt-4 border-t border-charcoal/10 max-w-lg flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px] font-mono uppercase tracking-wider text-charcoal/50" data-reveal data-delay="140">
+<span>Bengaluru</span>
+<span class="text-charcoal/25">•</span>
+<span>Citi</span>
+<span class="text-charcoal/25">•</span>
+<a class="text-citiBlue font-semibold hover:underline" href="https://topmate.io/nasrin_akhtar" target="_blank" rel="noopener">Open to collaboration</a>
+</div>
+</div>
+
+<!-- ============================================================
+     ORIGINAL GRADIENT DESCENT — hand-rolled 2D-canvas build (real
+     axes, a vertical Start/Iterate/Global-minimum arrow, an open
+     readout, a working learning-rate slider). Disabled for a
+     side-by-side trial, not deleted. To bring it back: un-comment
+     this block and comment out the GD2 block below it — its JS
+     lives in js/main.js and already no-ops whenever #gdCanvas
+     isn't in the page, so nothing else needs to change.
+
+<div class="md:col-span-5" data-reveal data-delay="150">
+<span class="editorial-label text-citiNavy">Gradient descent</span>
+<p class="text-[10px] font-mono uppercase tracking-widest text-charcoal/35 mt-0.5 mb-4">Finding the global minimum</p>
+
+<div class="flex items-stretch gap-10">
+<div class="relative flex-1 min-w-0">
+<canvas id="gdCanvas" class="w-full h-[420px] cursor-grab touch-none" aria-label="An interactive 3D gradient-descent loss surface — drag to rotate"></canvas>
+
+<div class="absolute top-1 right-1 text-right pointer-events-none">
+<div class="flex items-center gap-1.5 justify-end text-[10px] font-mono uppercase tracking-widest text-charcoal/40"><span class="w-1.5 h-1.5 rounded-full bg-citiBlue flex-shrink-0"></span>Current position</div>
+<div class="text-[11px] font-mono text-charcoal/70 mt-0.5 whitespace-nowrap" id="gdReadout">x: 0.00&nbsp;&nbsp;y: 0.00&nbsp;&nbsp;loss: 0.00</div>
+</div>
+
+<div class="absolute bottom-1 left-1 flex items-end gap-1.5 pointer-events-none">
+<svg class="w-10 h-6 text-charcoal/25" viewBox="0 0 56 32" fill="none" stroke="currentColor" stroke-width="1"><path d="M2 28c6 0 8-24 26-24s20 24 26 24"/></svg>
+<span class="text-[9px] font-mono uppercase tracking-widest text-charcoal/30 whitespace-nowrap leading-tight">Underlying<br/>distribution</span>
+</div>
+</div>
+
+<div class="hidden sm:block relative w-24 flex-shrink-0 h-[420px]" id="gdLegend">
+<svg class="absolute left-0 top-2 bottom-2 w-3 text-charcoal/20" viewBox="0 0 12 100" preserveAspectRatio="none" fill="none"><path d="M3 0 L3 92" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke"/><path d="M3 92 L0 85 M3 92 L6 85" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke"/></svg>
+<div class="gd-stage-dot absolute left-0 flex items-center gap-2 text-[10px] font-mono" data-stage="start" style="top:1%"><span class="gd-leg-dot"></span><span>Start</span></div>
+<div class="gd-stage-dot absolute left-0 flex items-center gap-2 text-[10px] font-mono" data-stage="iterate" style="top:47%"><span class="gd-leg-dot"></span><span>Iterate</span></div>
+<div class="gd-stage-dot absolute left-0 flex items-center gap-2 text-[10px] font-mono" data-stage="min" style="top:93%"><span class="gd-leg-dot"></span><span>Global minimum</span></div>
+</div>
+</div>
+
+<div class="mt-4 flex items-center gap-3 text-[11px] font-mono max-w-sm">
+<span class="uppercase tracking-widest text-charcoal/40 flex-shrink-0">Learning rate</span>
+<input class="flex-1 accent-citiBlue" id="gdLR" max="35" min="2" type="range" value="9"/>
+<span class="text-charcoal/50 w-9 text-right flex-shrink-0" id="gdLRVal">0.09</span>
+</div>
+
+</div>
+-->
+
+</div>
+</div>
+</section>
+<!-- END: Contact -->
+</main>
+
+<footer class="bg-charcoal text-alabaster py-12">
+<div class="max-w-7xl mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center justify-between gap-4">
+<p class="text-xs font-mono text-alabaster/60">© <span id="year">2026</span> Nasrin Akhtar · Built from scratch</p>
+<a class="text-xs font-mono uppercase tracking-widest text-alabaster/70 hover:text-citiBlue transition-colors" href="#hero">Back to top ↑</a>
+</div>
+</footer>
+
+<script src="js/main.js"></script>
+
+<!-- ============================================================
+     GRADIENT DESCENT v2 — Three.js build, scoped to #gd2-section.
+     Ported from the standalone reference; only the element ids
+     were renamed (gd2- prefix) and the scene background is read
+     from the site's own theme tokens instead of a hardcoded hex.
+     ============================================================ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(function () {
+  'use strict';
+  var container = document.getElementById('gd2-canvas-container');
+  if (!container || typeof THREE === 'undefined') return;
+  function clamp (v, lo, hi) { return Math.min(hi, Math.max(lo, v)); }
+
+  /* no scene.background is ever set — the renderer stays alpha:true and
+     transparent, so the page's own bg-paper shows straight through and the
+     surface reads as part of the background, not a card sitting on it */
+  var scene = new THREE.Scene();
+
+  var camera = new THREE.PerspectiveCamera(38, container.clientWidth / container.clientHeight, 0.1, 100);
+  camera.position.set(7, 5.5, 8);
+
+  var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(container.clientWidth, container.clientHeight);
+  container.appendChild(renderer.domElement);
+
+  var controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.06;
+  controls.enablePan = false;
+  controls.minDistance = 5;
+  controls.maxDistance = 13;
+  controls.target.set(0, 0.7, 0);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 1.5));
+
+  /* -- loss surface: a genuinely rugged landscape — many local minima and
+     maxima from overlapping ripples at different frequencies, sitting on a
+     shallow bowl, with one deep well that's unambiguously the global
+     minimum wherever the ripples happen to land -- */
+  var GLOBAL_X = 1.6, GLOBAL_Y = -1.3;
+  function lossFunction (x, y) {
+    var bowl = 0.05 * (x * x + y * y);
+    var ripple =
+      0.5 * Math.sin(x * 2.3) * Math.cos(y * 1.9) +
+      0.4 * Math.sin(x * 1.1 + y * 1.7) +
+      0.35 * Math.cos(x * 3.1) * Math.sin(y * 2.6) +
+      0.3 * Math.sin((x + y) * 1.6) +
+      0.25 * Math.cos(x * 0.8 - y * 2.2);
+    /* higher-frequency detail on top of the ripples — the actual "rough
+       edges": small, jagged local bumps rather than one smooth undulation */
+    var roughness =
+      0.16 * Math.sin(x * 5.5) * Math.cos(y * 4.8) +
+      0.13 * Math.cos(x * 6.3 + y * 5.1) +
+      0.11 * Math.sin(x * 7.8) * Math.sin(y * 6.9) +
+      0.09 * Math.cos(x * 9.1 - y * 8.3) +
+      0.07 * Math.sin(x * 11.4 + y * 10.2);
+    var well = -4.0 * Math.exp(-(Math.pow(x - GLOBAL_X, 2) + Math.pow(y - GLOBAL_Y, 2)) / 0.9);
+    return bowl + ripple + roughness + well;
+  }
+  function gradient (x, y) {
+    var eps = 0.001;
+    return {
+      x: (lossFunction(x + eps, y) - lossFunction(x - eps, y)) / (2 * eps),
+      y: (lossFunction(x, y + eps) - lossFunction(x, y - eps)) / (2 * eps)
+    };
+  }
+
+  var surfaceGroup = new THREE.Group();
+  scene.add(surfaceGroup);
+
+  var size = 6, segments = 90;
+  var geometry = new THREE.BufferGeometry();
+  var vertices = [], indices = [];
+
+  for (var ix = 0; ix <= segments; ix++) {
+    for (var iz = 0; iz <= segments; iz++) {
+      var x = -size / 2 + (ix / segments) * size;
+      var z = -size / 2 + (iz / segments) * size;
+      vertices.push(x, lossFunction(x, z), z);
+    }
+  }
+  for (var jx = 0; jx < segments; jx++) {
+    for (var jz = 0; jz < segments; jz++) {
+      var a = jx * (segments + 1) + jz;
+      var b = (jx + 1) * (segments + 1) + jz;
+      var c = (jx + 1) * (segments + 1) + jz + 1;
+      var d = jx * (segments + 1) + jz + 1;
+      indices.push(a, b, d, b, c, d);
+    }
+  }
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+  geometry.setIndex(indices);
+
+  var wireframe = new THREE.LineSegments(
+    new THREE.WireframeGeometry(geometry),
+    new THREE.LineBasicMaterial({ color: '#8ea0b3', transparent: true, opacity: 0.55 })
+  );
+  surfaceGroup.add(wireframe);
+
+  var surface = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+    color: '#e8edf2', transparent: true, opacity: 0.42, side: THREE.DoubleSide
+  }));
+  surfaceGroup.add(surface);
+
+  /* -- locate the true global minimum by a coarse grid search -- */
+  var minimum = { x: 0, y: 0, z: lossFunction(0, 0) };
+  var best = Infinity;
+  for (var mx = -3; mx <= 3; mx += 0.05) {
+    for (var my = -3; my <= 3; my += 0.05) {
+      var v = lossFunction(mx, my);
+      if (v < best) { best = v; minimum = { x: mx, y: my, z: v }; }
+    }
+  }
+
+  var minimumPoint = new THREE.Mesh(
+    new THREE.SphereGeometry(0.075, 16, 16),
+    new THREE.MeshBasicMaterial({ color: '#2868d8' })
+  );
+  minimumPoint.position.set(minimum.x, minimum.z + 0.07, minimum.y);
+  scene.add(minimumPoint);
+
+  var ring = new THREE.Mesh(
+    new THREE.RingGeometry(0.1, 0.16, 32),
+    new THREE.MeshBasicMaterial({ color: '#2868d8', transparent: true, opacity: 0.45, side: THREE.DoubleSide })
+  );
+  ring.rotation.x = -Math.PI / 2;
+  ring.position.set(minimum.x, minimum.z + 0.015, minimum.y);
+  scene.add(ring);
+
+  /* -- the descent itself -- */
+  var currentX = 2.7, currentY = 2.3, iteration = 0, pathPoints = [], pathLine = null;
+  var learningRate = 0.06;
+
+  /* -- optimiser: plain SGD, or momentum / Adagrad / RMSprop on top of it -- */
+  var optimizer = 'sgd';
+  var velX = 0, velY = 0;       // momentum
+  var cacheX = 0, cacheY = 0;   // adagrad / rmsprop
+  var MOMENTUM_BETA = 0.85, RMSPROP_DECAY = 0.9, EPS = 1e-8;
+
+  function resetOptimizerState () { velX = 0; velY = 0; cacheX = 0; cacheY = 0; }
+
+  function applyOptimizerStep (gx, gy) {
+    if (optimizer === 'momentum') {
+      velX = MOMENTUM_BETA * velX - learningRate * gx;
+      velY = MOMENTUM_BETA * velY - learningRate * gy;
+      currentX += velX; currentY += velY;
+    } else if (optimizer === 'adagrad') {
+      cacheX += gx * gx; cacheY += gy * gy;
+      currentX -= learningRate * gx / (Math.sqrt(cacheX) + EPS);
+      currentY -= learningRate * gy / (Math.sqrt(cacheY) + EPS);
+    } else if (optimizer === 'rmsprop') {
+      cacheX = RMSPROP_DECAY * cacheX + (1 - RMSPROP_DECAY) * gx * gx;
+      cacheY = RMSPROP_DECAY * cacheY + (1 - RMSPROP_DECAY) * gy * gy;
+      currentX -= learningRate * gx / (Math.sqrt(cacheX) + EPS);
+      currentY -= learningRate * gy / (Math.sqrt(cacheY) + EPS);
+    } else {
+      currentX -= learningRate * gx;
+      currentY -= learningRate * gy;
+    }
+  }
+
+  function addPathPoint (x, y) {
+    pathPoints.push(new THREE.Vector3(x, lossFunction(x, y) + 0.08, y));
+    if (pathLine) scene.remove(pathLine);
+    var pathGeometry = new THREE.BufferGeometry().setFromPoints(pathPoints);
+    pathLine = new THREE.Line(pathGeometry, new THREE.LineBasicMaterial({ color: '#2868d8', linewidth: 2 }));
+    scene.add(pathLine);
+  }
+
+  function beginDescentFrom (x, y) {
+    currentX = clamp(x, -3, 3); currentY = clamp(y, -3, 3);
+    iteration = 0; pathPoints = [];
+    resetOptimizerState();
+    if (pathLine) scene.remove(pathLine);
+    addPathPoint(currentX, currentY);
+    updateUI();
+  }
+
+  function resetGradientDescent () { beginDescentFrom(2.7, 2.3); }
+
+  var currentMarker = new THREE.Mesh(
+    new THREE.SphereGeometry(0.09, 18, 18),
+    new THREE.MeshBasicMaterial({ color: '#2868d8' })
+  );
+  scene.add(currentMarker);
+
+  var elX = document.getElementById('gd2-x-value');
+  var elY = document.getElementById('gd2-y-value');
+  var elLoss = document.getElementById('gd2-loss-value');
+  var elIter = document.getElementById('gd2-iteration-value');
+
+  function updateUI () {
+    var loss = lossFunction(currentX, currentY);
+    if (elX) elX.textContent = currentX.toFixed(2);
+    if (elY) elY.textContent = currentY.toFixed(2);
+    if (elLoss) elLoss.textContent = loss.toFixed(3);
+    if (elIter) elIter.textContent = iteration;
+    currentMarker.position.set(currentX, loss + 0.1, currentY);
+  }
+
+  function gradientStep () {
+    var g = gradient(currentX, currentY);
+    applyOptimizerStep(g.x, g.y);
+    iteration++;
+    addPathPoint(currentX, currentY);
+    updateUI();
+    var distance = Math.sqrt(Math.pow(currentX - minimum.x, 2) + Math.pow(currentY - minimum.y, 2));
+    if (distance < 0.12 || iteration > 160) setTimeout(resetGradientDescent, 1800);
+  }
+
+  /* -- click the surface: start a fresh descent from wherever you clicked -- */
+  var raycaster = new THREE.Raycaster();
+  var pointerDownAt = null;
+  renderer.domElement.addEventListener('pointerdown', function (e) {
+    pointerDownAt = { x: e.clientX, y: e.clientY };
+  });
+  renderer.domElement.addEventListener('pointerup', function (e) {
+    if (!pointerDownAt) return;
+    var moved = Math.hypot(e.clientX - pointerDownAt.x, e.clientY - pointerDownAt.y);
+    pointerDownAt = null;
+    if (moved > 6) return; /* a drag to orbit, not a click */
+
+    var rect = renderer.domElement.getBoundingClientRect();
+    var ndc = new THREE.Vector2(
+      ((e.clientX - rect.left) / rect.width) * 2 - 1,
+      -((e.clientY - rect.top) / rect.height) * 2 + 1
+    );
+    raycaster.setFromCamera(ndc, camera);
+    var hits = raycaster.intersectObject(surface);
+    if (hits.length) beginDescentFrom(hits[0].point.x, hits[0].point.z);
+  });
+
+  /* -- algorithm picker -- */
+  var optButtons = Array.prototype.slice.call(document.querySelectorAll('.gd2-opt'));
+  optButtons.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      optimizer = btn.getAttribute('data-opt');
+      resetOptimizerState();
+      optButtons.forEach(function (b) { b.classList.toggle('is-active', b === btn); });
+    });
+  });
+
+  var slider = document.getElementById('gd2-learning-rate');
+  var lrLabel = document.getElementById('gd2-lr-value');
+  if (slider) {
+    slider.addEventListener('input', function () {
+      learningRate = parseFloat(slider.value);
+      if (lrLabel) lrLabel.textContent = learningRate.toFixed(2);
+    });
+  }
+  var restartBtn = document.getElementById('gd2-restart');
+  if (restartBtn) restartBtn.addEventListener('click', function () { resetGradientDescent(); updateUI(); });
+
+  /* -- x/y baseline axes -- */
+  var axesMaterial = new THREE.LineBasicMaterial({ color: '#b7b7b7' });
+  function createAxis (start, end) {
+    var g = new THREE.BufferGeometry().setFromPoints([start, end]);
+    scene.add(new THREE.Line(g, axesMaterial));
+  }
+  createAxis(new THREE.Vector3(-3.2, 0, -3.2), new THREE.Vector3(3.2, 0, -3.2));
+  createAxis(new THREE.Vector3(-3.2, 0, -3.2), new THREE.Vector3(-3.2, 0, 3.2));
+
+  resetGradientDescent();
+  updateUI();
+
+  var REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var lastStep = 0;
+  function animate (timestamp) {
+    requestAnimationFrame(animate);
+    controls.update();
+    if (!REDUCED_MOTION && timestamp - lastStep > 180) {
+      gradientStep();
+      lastStep = timestamp;
+    }
+    var pulse = 1 + Math.sin(timestamp * 0.003) * 0.12;
+    ring.scale.set(pulse, pulse, pulse);
+    renderer.render(scene, camera);
+  }
+  requestAnimationFrame(animate);
+
+  window.addEventListener('resize', function () {
+    camera.aspect = container.clientWidth / container.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(container.clientWidth, container.clientHeight);
+  });
+
+})();
+</script>
+</body>
+</html>
